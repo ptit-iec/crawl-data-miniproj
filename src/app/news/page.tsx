@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import NewsPageClient from "@/components/news/NewsPageClient";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "All News - TechNews",
@@ -7,5 +8,7 @@ export const metadata: Metadata = {
 };
 
 export default function NewsPage() {
-  return <NewsPageClient />;
+  return <Suspense fallback={<div>Loading...</div>}>
+    <NewsPageClient />
+  </Suspense>;
 }
