@@ -5,7 +5,8 @@ const nextConfig: NextConfig = {
   images: {
     domains: ["picsum.photos"],
   },
-  assetPrefix: '/thongtinkhcn/'
+  assetPrefix: '/thongtinkhcn/',
+  basePath: '/thongtinkhcn',
 };
 
 export default nextConfig;
