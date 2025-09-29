@@ -14,6 +14,10 @@ services:
       - REDIS_URL=redis://redis:6379/0
     volumes:
       - .:/app
+    # Cho phép Selenium/Chrome chạy trong Docker
+    shm_size: "2gb"       # tránh lỗi khi Chrome bị crash vì thiếu shared memory
+    cap_add:
+      - SYS_ADMIN          # đôi khi cần để chạy Chrome headless ổn định
 
   mongodb:
     image: mongo:6.0
