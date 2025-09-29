@@ -75,8 +75,10 @@ class AuthenticationService:
 
         user_id = str(user.id)
 
-        user_info_fetched = await user.user_info.fetch()
-        user_info_id = str(user_info_fetched.id) if user_info_fetched else None
+        user_info_id = None
+        if user.user_info:
+            user_info_fetched = await user.user_info.fetch()
+            user_info_id = str(user_info_fetched.id) if user_info_fetched else None
 
         access_token = create_access_token(
             {
