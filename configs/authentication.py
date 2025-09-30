@@ -51,11 +51,6 @@ async def get_current_user(
         user = await UserInfo.find_one(
             UserInfo.id == PydanticObjectId(user_info_id)
         )
-        
-        if not user:
-            user = await UserAuthentication.find_one(
-                UserAuthentication.id == PydanticObjectId(user_id)
-            )
 
         return user
     

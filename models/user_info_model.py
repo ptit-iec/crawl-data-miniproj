@@ -4,9 +4,9 @@ from beanie import Document, Link
 class UserInfo(Document):
     full_name: str
     number_phone: Optional[str] = None
-    email: str
+    email: Optional[str] = None
     id_personal: Optional[str] = None
-    status: bool
+    status: Optional[bool] = True
 
     class Settings:
         name = "user_info"

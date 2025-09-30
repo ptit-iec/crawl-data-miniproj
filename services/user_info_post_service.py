@@ -18,7 +18,7 @@ class UserInfoPostService:
                 user_info =current_user.id
             )
 
-            db_user_info_post = await UserInfoPost.find_one(UserInfoPost.post == user_info_post.post)
+            db_user_info_post = await UserInfoPost.find_one(UserInfoPost.post == user_info_post.post, UserInfoPost.user_info == user_info_post.user_info)
 
             if db_user_info_post:
                 raise Exception("User info post already exists for this post")

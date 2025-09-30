@@ -9,7 +9,7 @@ from schemas.authentication_schema import Token, UserPasswordUpdate
 from schemas.base_response import BaseResponse
 from datetime import timedelta
 from models.user_authentication_model import UserAuthentication
-#from schemas.authentication_schema import UserAuthentication as UserAuthenticationSchema
+from models.user_info_model import UserInfo
 from dotenv import load_dotenv
 import os
 
@@ -36,15 +36,27 @@ class AuthenticationService:
                     detail="Username already exists!"
                 )
 
+            # Tạo mới user_auth
             new_user = UserAuthentication(
                 username=user.username,
                 hashed_password=hash_password(user.password),
             )
             await new_user.insert()
 
+            # Tạo luôn user_info gắn với user_auth
+            new_user_info = UserInfo(
+                user_auth=new_user.id,   # hoặc Link[UserAuthentication]
+                full_name=user.username, # tuỳ bạn muốn thêm gì
+            )
+            await new_user_info.insert()
+
+            # Cập nhật lại user_auth để link sang user_info
+            new_user.user_info = new_user_info
+            await new_user.save()
+
             return BaseResponse(message="User registered successfully!")
         except Exception as e:
-            print(e)
+            print("[register_user error]", e)
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="An error occurred while registering the user!"
