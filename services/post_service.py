@@ -59,8 +59,10 @@ class PostService:
             post = await Post.get(id)
             if not post:
                 raise Exception("Post not found")
-                
-            newspaper_publisher = await post.newspaper_publisher.fetch()
+            
+            publisher = None
+            if post.newspaper_publisher:
+                publisher = await post.newspaper_publisher.fetch()
 
             return PostResponse(
                 id=post.id,
@@ -75,12 +77,12 @@ class PostService:
                 author=post.author,
                 time=post.time,
                 topic=post.topic,
-                newspaper_publisher=newspaper_publisher.id if newspaper_publisher else None
+                newspaper_publisher=publisher.id if publisher else None
             )
-        
         except Exception as e:
-            print(e)
+            print(f"[get_post] Error: {e}")
             return None
+
     
 
     async def get_all_posts(self) -> list[PostResponse]:

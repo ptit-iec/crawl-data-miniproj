@@ -19,7 +19,9 @@ load_dotenv()
 MONGO_URI = os.getenv("MONGO_URI")
 DB_NAME = os.getenv("DB_NAME")
 
-client = AsyncIOMotorClient(MONGO_URI)
+client = AsyncIOMotorClient(MONGO_URI,
+                            tls = True,
+                            tlsAllowInvalidCertificates=True)
 
 async def init_db():
     try:
