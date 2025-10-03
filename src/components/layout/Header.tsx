@@ -60,7 +60,7 @@ export default function Header() {
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
             <img
-              src="/Logo_PTIT.png"
+              src="/thongtinkhcn/Logo_PTIT.png"
               alt="PTIT IEC Logo"
               className="h-10 w-auto"
             />

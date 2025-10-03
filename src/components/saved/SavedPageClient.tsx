@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import ArticlesPageLayout from "@/components/layout/ArticlesPageLayout";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { getUserInfoApi } from "@/api/user";
-import { getPostByTag, Article } from "@/api/posts";
+import { getPostById, Article } from "@/api/posts";
 
 export default function SavedPageClient() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -14,22 +14,30 @@ export default function SavedPageClient() {
   const [loading, setLoading] = useState(false);
   const [articles, setArticles] = useState<Article[]>([]);
 
-  async function fetchArticlesByTags(tagIds: string[]) {
+  async function fetchArticlesByIds(ids: string[]) {
     try {
       setLoading(true);
-      const allArticles: Article[] = [];
+      console.log("fetchArticlesByIds called with ids:", ids);
 
-      for (const tagId of tagIds) {
-        const res = await getPostByTag(tagId, 1, 3);
-        allArticles.push(...res.items);
-      }
+      // Gọi tất cả id song song
+      const results = await Promise.all(
+        ids.map((id) => {
+          console.log("Calling getPostById with:", id);
+          return getPostById(id);
+        })
+      );
 
+      // Gộp tất cả items
+      const allArticles: Article[] = results.flatMap((res) => res.items ?? []);
+
+      // Sắp xếp theo ngày
       allArticles.sort((a, b) => {
         const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
         const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
         return dateB - dateA;
       });
 
+      console.log("Fetched articles:", allArticles);
       setArticles(allArticles);
     } catch (err) {
       console.error("Error loading articles:", err);
@@ -47,11 +55,12 @@ export default function SavedPageClient() {
         const userInfo = await getUserInfoApi(token!);
         console.log("User info:", userInfo);
 
+        const ids: string[] = userInfo.data.map((item: any) => item.id); 
 
-        const tagIds: string[] = userInfo.data.map((item: any) => item.tag);
+        console.log("Extracted ids from userInfo:", ids);
 
-        if (tagIds.length > 0) {
-          await fetchArticlesByTags(tagIds);
+        if (ids.length > 0) {
+          await fetchArticlesByIds(ids);
         }
       } catch (error: any) {
         console.error("Error fetching user info:", error.message);
@@ -66,7 +75,6 @@ export default function SavedPageClient() {
       router.push("/");
     }
   }, [isLoading, isAuthenticated, router]);
-
 
   if (isLoading || !isAuthenticated) {
     return (

@@ -10,7 +10,7 @@ export default function RegisterPage() {
     <div className="min-h-screen py-12 px-4 sm:px-6 flex flex-col justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
       <div className="sm:mx-auto sm:w-full sm:max-w-md mb-8 text-center">
         <img
-          src="/Logo_PTIT.png"
+          src="/thongtinkhcn/Logo_PTIT.png"
           alt="TechNews Logo"
           className="h-12 w-auto mx-auto"
         />

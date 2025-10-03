@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import ArticleList from "@/components/ArticleList";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { getUserInfoApi } from "@/api/user";
-import { getPostByTag, Article } from "@/api/posts";
+import { getPostById, Article } from "@/api/posts";
 import { useEffect, useState } from "react";
 
 export default function SavedPreview() {
@@ -15,51 +15,52 @@ export default function SavedPreview() {
   const [loading, setLoading] = useState(false);
   const [articles, setArticles] = useState<Article[]>([]);
 
-  async function fetchArticlesByTags(tagIds: string[]) {
+  async function fetchArticlesByIds(ids: string[]) {
+  try {
+    setLoading(true);
+
+    // Gọi tất cả id song song
+    console.log(ids);
+    
+    const results = await Promise.all(ids.map((id) => getPostById(id)));
+
+    // Vì mỗi getPostById trả về { items: [...] }, nên cần flatMap
+    const allArticles: Article[] = results.flatMap((res) => res.items ?? []);
+
+    // Sắp xếp theo ngày
+    allArticles.sort((a, b) => {
+      const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+      const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+      return dateB - dateA;
+    });
+    setArticles(allArticles.slice(0, 6));
+  } catch (err) {
+    console.error("Error loading preview articles:", err);
+  } finally {
+    setLoading(false);
+  }
+}
+
+useEffect(() => {
+  const token = localStorage.getItem("techNewsToken");
+  if (!token) return;
+
+  async function fetchAndLoad() {
     try {
-      setLoading(true);
+      const userInfo = await getUserInfoApi(token!);
 
+      const ids: string[] = userInfo.data.map((item: any) => item.tag);
 
-      const results = await Promise.all(
-        tagIds.map((tagId) => getPostByTag(tagId, 1, 3))
-      );
-
-
-      const allArticles: Article[] = results.flatMap((res) => res.items);
-
-      allArticles.sort((a, b) => {
-        const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
-        const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
-        return dateB - dateA;
-      });
-
-      setArticles(allArticles.slice(0, 6));
-    } catch (err) {
-      console.error("Error loading preview articles:", err);
-    } finally {
-      setLoading(false);
+      if (ids.length > 0) {
+        await fetchArticlesByIds(ids);
+      }
+    } catch (error: any) {
+      console.error("Error fetching user info:", error.message);
     }
   }
 
-  useEffect(() => {
-    const token = localStorage.getItem("techNewsToken");
-    if (!token) return;
-
-    async function fetchAndLoad() {
-      try {
-        const userInfo = await getUserInfoApi(token!);
-        const tagIds: string[] = userInfo.data.map((item: any) => item.tag);
-
-        if (tagIds.length > 0) {
-          await fetchArticlesByTags(tagIds);
-        }
-      } catch (error: any) {
-        console.error("Error fetching user info:", error.message);
-      }
-    }
-
-    fetchAndLoad();
-  }, []);
+  fetchAndLoad();
+}, []);
 
   return (
     <section className="py-8">

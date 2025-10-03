@@ -1,8 +1,10 @@
 import axios from "axios";
+import { it } from "node:test";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export interface Article {
+  id: string;
   name: string;
   field: string;
   des: string;
@@ -37,6 +39,7 @@ export async function getAllPosts(
   const normalized: ApiResponse<Article> = {
     ...res.data,
     items: res.data.items.map((item) => ({
+      id: item.id,
       name: item.title,
       field: item.topic?.[0] || "Chưa phân loại",
       des: item.description || "",
@@ -66,6 +69,7 @@ export async function getPostByTag(
   const normalized: ApiResponse<Article> = {
     ...res.data,
     items: res.data.items.map((item) => ({
+      id: item.id,
       name: item.title,
       field: item.topic?.[0] || "Chưa phân loại",
       des: item.description || "",
@@ -85,15 +89,16 @@ export async function getPostByTag(
   return normalized;
 }
 export async function getPostById(
-  tag_id?: string,
+  id?: string,
 ): Promise<ApiResponse<Article>> {
-  const url = `${API_URL}/api/posts/by_tag/${tag_id}`;
+  const url = `${API_URL}/api/posts/${id}`;
 
   const res = await axios.get<ApiResponse<any>>(url);
 
   const normalized: ApiResponse<Article> = {
     ...res.data,
     items: res.data.items.map((item) => ({
+      id: item.id,
       name: item.title,
       field: item.topic?.[0] || "Chưa phân loại",
       des: item.description || "",

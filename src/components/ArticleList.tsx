@@ -95,16 +95,18 @@ export default function ArticleList({
             : "space-y-4"
         }
       >
-        {currentArticles.map((article) => (
-          <ArticleCard
-            key={article.id || article.name}
-            article={article}
-            layout={layout}
-            variant={variant}
-            onSave={handleSave}
-            showActions={showActions}
-          />
-        ))}
+        {currentArticles.map((article) => {
+          return (
+            <ArticleCard
+              key={article.id || article.name}
+              article={article}
+              layout={layout}
+              variant={variant}
+              onSave={() => defaultHandleSave(article.id!)}
+              showActions={showActions}
+            />
+          );
+})}
       </div>
 
       {/* Empty State */}

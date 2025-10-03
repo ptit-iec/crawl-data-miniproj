@@ -17,7 +17,7 @@ export async function getUserInfoApi(token: string): Promise<UserInfoResponse> {
   if (!token) throw new Error("No token provided");
 
   try {
-    const res = await axios.get<UserInfoResponse>(`${API_URL}/api/user-info-tags/`, {
+    const res = await axios.get<UserInfoResponse>(`${API_URL}api/user_info_posts/`, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return res.data;
