@@ -25,3 +25,19 @@ export async function getUserInfoApi(token: string): Promise<UserInfoResponse> {
     throw new Error(error.response?.data?.detail || "Fetch user info failed");
   }
 }
+export async function savePostApi(token: string, postId: string): Promise<any> {
+  if (!token) throw new Error("No token provided");
+
+  try {
+    const res = await axios.post(
+      `${API_URL}api/user_info_posts/`, 
+      { post: postId },                 
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    return res.data;
+  } catch (error: any) {
+    throw new Error(error.response?.data?.detail || "Save post failed");
+  }
+}

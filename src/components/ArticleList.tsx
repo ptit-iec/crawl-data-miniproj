@@ -10,7 +10,7 @@ import type {
   FavoriteArticle,
   NewsGridItem,
 } from "@/data/articles";
-
+import { savePostApi } from "@/api/user";
 interface ArticleListProps {
   articles: (NewsArticle &
     Partial<SavedArticle & FavoriteArticle & NewsGridItem>)[];
@@ -39,25 +39,35 @@ export default function ArticleList({
 }: ArticleListProps) {
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Default handlers if none provided
+  // Default handlers
   const defaultHandleLike = (id: string) => {
     console.log("Liked article:", id);
-    // TODO: Implement actual like functionality
   };
 
-  const defaultHandleSave = (id: string) => {
-    console.log("Saved article:", id);
-    // TODO: Implement actual save functionality
-  };
+  const defaultHandleSave = async (id: string) => {
+  try {
+    const token = localStorage.getItem("techNewsToken");
+    if (!token) {
+      console.error("No token available");
+      return;
+    }
 
-  // Use provided handlers or defaults
+    console.log("Saving article:", id);
+    await savePostApi(token, id);   
+    console.log(" Saved successfully:", id);
+  } catch (error: any) {
+    console.error(" Save failed:", error.message);
+  }
+};
+
+  // Merge custom or default
   const handleLike = onLike || defaultHandleLike;
   const handleSave = onSave || defaultHandleSave;
 
-  // Apply limit if specified (for preview components)
+  // Apply limit
   const limitedArticles = limit ? articles.slice(0, limit) : articles;
 
-  // Apply pagination if enabled
+  // Pagination logic
   const totalPages = enablePagination
     ? Math.ceil(limitedArticles.length / itemsPerPage)
     : 1;
@@ -95,18 +105,16 @@ export default function ArticleList({
             : "space-y-4"
         }
       >
-        {currentArticles.map((article) => {
-          return (
-            <ArticleCard
-              key={article.id || article.name}
-              article={article}
-              layout={layout}
-              variant={variant}
-              onSave={() => defaultHandleSave(article.id!)}
-              showActions={showActions}
-            />
-          );
-})}
+        {currentArticles.map((article) => (
+          <ArticleCard
+            key={article.id || article.name}
+            article={article}
+            layout={layout}
+            variant={variant}
+            onSave={() => handleSave(article.id!)}   
+            showActions={showActions}
+          />
+        ))}
       </div>
 
       {/* Empty State */}
@@ -136,7 +144,6 @@ export default function ArticleList({
           </Button>
 
           <div className="flex items-center gap-1">
-            {/* Show first page */}
             {currentPage > 3 && (
               <>
                 <Button
@@ -153,7 +160,6 @@ export default function ArticleList({
               </>
             )}
 
-            {/* Show pages around current page */}
             {Array.from({ length: totalPages }, (_, i) => i + 1)
               .filter((page) => {
                 return (
@@ -180,7 +186,6 @@ export default function ArticleList({
                 </Button>
               ))}
 
-            {/* Show last page */}
             {currentPage < totalPages - 2 && (
               <>
                 {currentPage < totalPages - 3 && (

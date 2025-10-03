@@ -55,7 +55,7 @@ export default function SavedPageClient() {
         const userInfo = await getUserInfoApi(token!);
         console.log("User info:", userInfo);
 
-        const ids: string[] = userInfo.data.map((item: any) => item.id); 
+        const ids: string[] = userInfo.data.map((item: any) => item.post); 
 
         console.log("Extracted ids from userInfo:", ids);
 

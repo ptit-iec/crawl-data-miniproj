@@ -49,7 +49,7 @@ useEffect(() => {
     try {
       const userInfo = await getUserInfoApi(token!);
 
-      const ids: string[] = userInfo.data.map((item: any) => item.tag);
+      const ids: string[] = userInfo.data.map((item: any) => item.post);
 
       if (ids.length > 0) {
         await fetchArticlesByIds(ids);
