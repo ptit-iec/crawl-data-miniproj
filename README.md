@@ -3,6 +3,13 @@
 A modern, responsive news aggregation platform built with Next.js 15, specifically designed for technology news and articles. The application provides users with a seamless experience to browse, save, and favorite technology articles from various sources.
 
 ## 🚀 Quick Start
+ Create `.env` file, copy content 
+
+- Config API domain 
+
+```bash
+NEXT_PUBLIC_API_URL=http://localhost:3000
+```
 
 ```bash
 # Install dependencies
