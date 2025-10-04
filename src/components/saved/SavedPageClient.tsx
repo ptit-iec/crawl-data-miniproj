@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ArticlesPageLayout from "@/components/layout/ArticlesPageLayout";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { getUserInfoApi } from "@/api/user";
+import { getUserInfoApi, UserTag } from "@/api/user";
 import { getPostById, Article } from "@/api/posts";
 
 export default function SavedPageClient() {
@@ -55,15 +55,19 @@ export default function SavedPageClient() {
         const userInfo = await getUserInfoApi(token!);
         console.log("User info:", userInfo);
 
-        const ids: string[] = userInfo.data.map((item: any) => item.post); 
+        const ids: string[] = userInfo.data.map((item: UserTag) => item.post);
 
         console.log("Extracted ids from userInfo:", ids);
 
         if (ids.length > 0) {
           await fetchArticlesByIds(ids);
         }
-      } catch (error: any) {
-        console.error("Error fetching user info:", error.message);
+      } catch (error: unknown) {
+        if (error instanceof Error) {
+          console.error("Error fetching user info:", error.message);
+        } else {
+          console.error("Error fetching user info: Unknown error", error);
+        }
       }
     }
 

@@ -44,7 +44,7 @@ export default function ArticleList({
     console.log("Liked article:", id);
   };
 
-  const defaultHandleSave = async (id: string) => {
+const defaultHandleSave = async (id: string) => {
   try {
     const token = localStorage.getItem("techNewsToken");
     if (!token) {
@@ -53,15 +53,19 @@ export default function ArticleList({
     }
 
     console.log("Saving article:", id);
-    await savePostApi(token, id);   
-    console.log(" Saved successfully:", id);
-  } catch (error: any) {
-    console.error(" Save failed:", error.message);
+    await savePostApi(token, id);
+    console.log("Saved successfully:", id);
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+      console.error("Save failed:", error.message);
+    } else {
+      console.error("Save failed: Unknown error", error);
+    }
   }
 };
 
   // Merge custom or default
-  const handleLike = onLike || defaultHandleLike;
+  // const handleLike = onLike || defaultHandleLike;
   const handleSave = onSave || defaultHandleSave;
 
   // Apply limit

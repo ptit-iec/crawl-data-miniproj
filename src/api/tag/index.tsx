@@ -12,17 +12,23 @@ export interface ApiResponse<T> {
   items: T[];
 }
 
+interface RawTag {
+  id: string;
+  name: string;
+  description?: string;
+}
+
 export async function getAllTags(): Promise<ApiResponse<Tag>> {
   const url = `${API_URL}/api/tags`; 
-  const res = await axios.get(url);
+  const res = await axios.get<{ data: RawTag[] }>(url);
 
-  const rawItems = res.data.data || []; 
+  const rawItems: RawTag[] = res.data.data || [];
 
   const normalized: ApiResponse<Tag> = {
-    items: rawItems.map((item: any) => ({
+    items: rawItems.map((item) => ({
       id: item.id,
       name: item.name,
-      description: item.description,
+      description: item.description || "",
     })),
   };
 

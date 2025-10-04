@@ -30,11 +30,11 @@ export function useArticlesByTag(tagName: string, limit = 6) {
   
           const mappedArticles: TrendingArticle[] = postsRes.items.map(
             (a: Article, index: number) => ({
-              id: String(index), 
+              ...a,
+              localId: String(index), // key phụ
               views: 0,
               readTime: "3 phút",
               trendingScore: 0,
-              ...a,
             })
           );
 

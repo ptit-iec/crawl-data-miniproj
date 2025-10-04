@@ -1,5 +1,4 @@
 import axios from "axios";
-import { it } from "node:test";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -28,13 +27,30 @@ export interface ApiResponse<T> {
   pages: number;
 }
 
+// Dữ liệu thô từ API
+interface RawArticle {
+  id: string;
+  title: string;
+  topic?: string[];
+  description?: string;
+  domain?: string;
+  url: string;
+  contact_info?: string;
+  address?: string;
+  summary?: string;
+  internalLinks?: string[];
+  externalLinks?: string[];
+  images?: string[];
+  time?: string;
+}
+
 export async function getAllPosts(
   page: number = 1,
   limit: number = 10
 ): Promise<ApiResponse<Article>> {
   const url = `${API_URL}/api/posts?page=${page}&limit=${limit}`;
 
-  const res = await axios.get<ApiResponse<any>>(url);
+  const res = await axios.get<ApiResponse<RawArticle>>(url);
 
   const normalized: ApiResponse<Article> = {
     ...res.data,
@@ -51,12 +67,14 @@ export async function getAllPosts(
       summarize: item.summary || "",
       internalLinks: item.internalLinks || [],
       externalLinks: item.externalLinks || [],
-      imageUrl: item.images?.[0] || null,
+      imageUrl: item.images?.[0] || undefined,
+      publishedAt: item.time,
     })),
   };
 
   return normalized;
 }
+
 export async function getPostByTag(
   tag_id?: string,
   page = 1,
@@ -64,7 +82,7 @@ export async function getPostByTag(
 ): Promise<ApiResponse<Article>> {
   const url = `${API_URL}/api/posts/by_tag/${tag_id}?page=${page}&limit=${limit}`;
 
-  const res = await axios.get<ApiResponse<any>>(url);
+  const res = await axios.get<ApiResponse<RawArticle>>(url);
 
   const normalized: ApiResponse<Article> = {
     ...res.data,
@@ -81,19 +99,20 @@ export async function getPostByTag(
       summarize: item.summary || "",
       internalLinks: item.internalLinks || [],
       externalLinks: item.externalLinks || [],
-      imageUrl: item.images?.[0] || null,
-      publishedAt: item.time
+      imageUrl: item.images?.[0] || undefined,
+      publishedAt: item.time,
     })),
   };
 
   return normalized;
 }
+
 export async function getPostById(
-  id?: string,
+  id?: string
 ): Promise<ApiResponse<Article>> {
   const url = `${API_URL}/api/posts/${id}`;
 
-  const res = await axios.get<ApiResponse<any>>(url);
+  const res = await axios.get<ApiResponse<RawArticle>>(url);
 
   const normalized: ApiResponse<Article> = {
     ...res.data,
@@ -110,8 +129,8 @@ export async function getPostById(
       summarize: item.summary || "",
       internalLinks: item.internalLinks || [],
       externalLinks: item.externalLinks || [],
-      imageUrl: item.images?.[0] || null,
-      publishedAt: item.time
+      imageUrl: item.images?.[0] || undefined,
+      publishedAt: item.time,
     })),
   };
 

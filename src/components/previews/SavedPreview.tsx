@@ -19,15 +19,15 @@ export default function SavedPreview() {
   try {
     setLoading(true);
 
-    // Gọi tất cả id song song
+
     console.log(ids);
     
     const results = await Promise.all(ids.map((id) => getPostById(id)));
 
-    // Vì mỗi getPostById trả về { items: [...] }, nên cần flatMap
+
     const allArticles: Article[] = results.flatMap((res) => res.items ?? []);
 
-    // Sắp xếp theo ngày
+
     allArticles.sort((a, b) => {
       const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
       const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
@@ -49,13 +49,19 @@ useEffect(() => {
     try {
       const userInfo = await getUserInfoApi(token!);
 
-      const ids: string[] = userInfo.data.map((item: any) => item.post);
+      const ids: string[] = userInfo.data.map(
+        (item: { post: string }) => item.post
+      );
 
       if (ids.length > 0) {
         await fetchArticlesByIds(ids);
       }
-    } catch (error: any) {
-      console.error("Error fetching user info:", error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error("Error fetching user info:", error.message);
+      } else {
+        console.error("Unexpected error:", error);
+      }
     }
   }
 

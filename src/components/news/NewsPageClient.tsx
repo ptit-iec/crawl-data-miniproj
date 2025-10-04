@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import ArticlesPageLayout from "@/components/layout/ArticlesPageLayout";
-import { getAllPosts, getPostByTag, Article } from "@/api/posts";
+import { getPostByTag, Article } from "@/api/posts";
 import { getAllTags, Tag } from "@/api/tag";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -23,108 +23,100 @@ export default function NewsPageClient() {
     "Stay updated with the latest technology news, trends, and insights from around the world"
   );
 
-  async function loadArticles(reset = false, customPage?: number) {
-  if (loading) return;
-  setLoading(true);
+  // ✅ Dùng useCallback để ổn định hàm loadArticles
+  const loadArticles = useCallback(
+    async (reset = false, customPage?: number) => {
+      if (loading) return;
+      setLoading(true);
 
-  try {
-    const targetPage = customPage ?? (reset ? 1 : page);
+      try {
+        const targetPage = customPage ?? (reset ? 1 : page);
 
-    let data: { items: Article[] };
+        let data: { items: Article[] };
 
-    if (categoryParam) {
-      // Nếu có categoryParam -> giữ nguyên
-      const tag = tags.find(
-        (t) => t.name.toLowerCase() === categoryParam.toLowerCase()
-      );
-      if (tag) {
-        data = await getPostByTag(tag.id, targetPage, 5);
-        if (reset) {
-          setCategoryTitle("Danh mục");
-          setCategoryDescription(`Bài viết mới nhất về ${tag.name}`);
-        }
-      } else {
-        data = { items: [] };
-        if (reset) {
-          setCategoryTitle("Không tìm thấy danh mục");
-          setCategoryDescription(
-            `Không có bài viết nào cho danh mục ${categoryParam}.`
+        if (categoryParam) {
+          const tag = tags.find(
+            (t) => t.name.toLowerCase() === categoryParam.toLowerCase()
           );
+          if (tag) {
+            data = await getPostByTag(tag.id, targetPage, 5);
+            if (reset) {
+              setCategoryTitle("Danh mục");
+              setCategoryDescription(`Bài viết mới nhất về ${tag.name}`);
+            }
+          } else {
+            data = { items: [] };
+            if (reset) {
+              setCategoryTitle("Không tìm thấy danh mục");
+              setCategoryDescription(
+                `Không có bài viết nào cho danh mục ${categoryParam}.`
+              );
+            }
+          }
+        } else {
+          const fixedTags = [
+            "ai",
+            "khcn",
+            "telecom",
+            "robotics",
+            "software",
+            "security",
+            "research",
+          ];
+
+          const targetTags = tags.filter((t) =>
+            fixedTags.includes(t.name.toLowerCase())
+          );
+
+          const results = await Promise.all(
+            targetTags.map((t) => getPostByTag(t.id, targetPage, 5))
+          );
+
+          const merged = results.flatMap((r) => r.items);
+
+          merged.sort((a, b) => {
+            const dateA = new Date(a.publishedAt || 0).getTime();
+            const dateB = new Date(b.publishedAt || 0).getTime();
+            return dateB - dateA;
+          });
+
+          data = { items: merged };
+          if (reset) {
+            setCategoryTitle("Tin tức công nghệ");
+            setCategoryDescription(
+              "Tổng hợp bài viết từ nhiều chủ đề công nghệ quan trọng"
+            );
+          }
         }
+        setArticles(data.items);
+        setPage(targetPage);
+        setHasMore(data.items.length > 0);
+      } catch (err) {
+        console.error("Error loading posts:", err);
+      } finally {
+        setLoading(false);
       }
-    } else {
-      const fixedTags = [
-        "ai",
-        "khcn",
-        "telecom",
-        "robotics",
-        "software",
-        "security",
-        "research",
-      ];
+    },
+    [loading, page, categoryParam, tags] 
+  );
 
-      const targetTags = tags.filter((t) =>
-        fixedTags.includes(t.name.toLowerCase())
-      );
-
-      const results = await Promise.all(
-        targetTags.map((t) => getPostByTag(t.id, targetPage, 5))
-      );
-
-      const merged = results.flatMap((r) => r.items);
-
-      // Sắp xếp theo ngày mới nhất (ưu tiên publishedAt, fallback createdAt)
-      merged.sort((a, b) => {
-        const dateA = new Date(a.publishedAt || 0).getTime();
-        const dateB = new Date(b.publishedAt || 0).getTime();
-        return dateB - dateA; // mới nhất lên đầu
-      });
-
-
-      data = { items: merged };
-      if (reset) {
-        setCategoryTitle("Tin tức công nghệ");
-        setCategoryDescription(
-          "Tổng hợp bài viết từ nhiều chủ đề công nghệ quan trọng"
-        );
+  useEffect(() => {
+    async function fetchTags() {
+      try {
+        const tagRes = await getAllTags();
+        setTags(tagRes.items);
+      } catch (err) {
+        console.error("Error loading tags:", err);
       }
     }
-    setArticles(data.items);
-    setPage(targetPage);
-    setHasMore(data.items.length > 0);
-  } catch (err) {
-    console.error("Error loading posts:", err);
-  } finally {
-    setLoading(false);
-  }
-}
-  useEffect(() => {
-  async function fetchTags() {
-    try {
-      const tagRes = await getAllTags();
-      setTags(tagRes.items);
-    } catch (err) {
-      console.error("Error loading tags:", err);
-    }
-  }
-  fetchTags();
-}, []);
+    fetchTags();
+  }, []);
 
-useEffect(() => {
-  if (tags.length > 0) {
-    loadArticles(true, 1);
-  }
-}, [tags, categoryParam]);
-
-  
   useEffect(() => {
-    async function init() {
-      const tagRes = await getAllTags();
-      setTags(tagRes.items);
-      await loadArticles(true, 1);
+    if (tags.length > 0) {
+      loadArticles(true, 1);
     }
-    init();
-  }, [categoryParam]);
+  }, [tags, categoryParam, loadArticles]);
 
   return (
     <div>
@@ -152,7 +144,6 @@ useEffect(() => {
               Previous
             </Button>
 
-            {/* Next */}
             <Button
               variant="outline"
               size="sm"

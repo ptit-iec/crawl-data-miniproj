@@ -1,14 +1,17 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
-
-export async function loginApi(username: string, password: string) {
+interface LoginResponse {
+  access_token: string;
+  token_type: string;
+}
+export async function loginApi(username: string, password: string): Promise<LoginResponse> {
   try {
-    const res = await axios.post(
+    const res = await axios.post<LoginResponse>(
       `${API_URL}/api/authentication/token`,
       new URLSearchParams({
-        username: username,
-        password: password,
+        username,
+        password,
       }),
       {
         headers: {
@@ -16,9 +19,10 @@ export async function loginApi(username: string, password: string) {
         },
       }
     );
-    return res.data; // { access: "...", refresh: "..." }
-  } catch (error: any) {
-    throw new Error(error.response?.data?.detail || "Login failed");
+    return res.data;
+  } catch (error) {
+    const err = error as AxiosError<{ detail?: string }>;
+    throw new Error(err.response?.data?.detail || "Login failed");
   }
 }
 
@@ -38,8 +42,9 @@ export async function registerApi(
       }
     );
     return res.data;
-  } catch (error: any) {
-    throw new Error(error.response?.data?.detail || "Register failed");
+  } catch (error) {
+    const err = error as AxiosError<{ detail?: string }>;
+    throw new Error(err.response?.data?.detail || "Register failed");
   }
 }
 

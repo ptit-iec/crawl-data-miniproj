@@ -6,7 +6,7 @@ import { Menu, X, Search, Bell, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import UserMenu from "@/components/auth/UserMenu";
 import { useAuth } from "@/lib/auth/AuthContext";
-
+import Image from "next/image";
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -59,11 +59,13 @@ export default function Header() {
             href="/"
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
-            <img
-              src="/thongtinkhcn/Logo_PTIT.png"
-              alt="PTIT IEC Logo"
-              className="h-10 w-auto"
-            />
+              <Image
+                src="/thongtinkhcn/Logo_PTIT.png"
+                alt="PTIT IEC Logo"
+                width={120}   
+                height={40}
+                className="h-10 w-auto"
+              />
             <h1 className="text-xl font-bold gradient-text">TechNews</h1>
           </Link>
 

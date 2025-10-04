@@ -21,6 +21,7 @@ import type {
   NewsGridItem,
 } from "@/data/articles";
 import Link from "next/link";
+import Image from "next/image";
 interface ArticleCardProps {
   article: NewsArticle & Partial<SavedArticle & FavoriteArticle & NewsGridItem>;
   layout: "grid" | "list";
@@ -234,12 +235,14 @@ export default function ArticleCard({
       >
         {showSummary && <AISummaryPopup />}
         <div className="relative overflow-hidden">
-          <img
+          <Image
             src={
               article.imageUrl ||
               `https://picsum.photos/400/250?random=${article.name.length}`
             }
             alt={article.name}
+            width={400}
+            height={250}
             className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
           />
 
@@ -333,14 +336,16 @@ export default function ArticleCard({
         {/* Image */}
         <div className="lg:w-40 lg:flex-shrink-0">
           <div className="relative overflow-hidden h-32 lg:h-full">
-            <img
-              src={
-                article.imageUrl ||
-                `https://picsum.photos/400/250?random=${article.name.length}`
-              }
-              alt={article.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            />
+            <Image
+                src={
+                  article.imageUrl ||
+                  `https://picsum.photos/400/250?random=${article.name.length}`
+                }
+                alt={article.name}
+                width={400}
+                height={250}
+                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+              />
 
             {/* Action Buttons */}
             {showActions && (
