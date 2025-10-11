@@ -48,7 +48,7 @@ export async function getAllPosts(
   page: number = 1,
   limit: number = 10
 ): Promise<ApiResponse<Article>> {
-  const url = `${API_URL}/api/posts?page=${page}&limit=${limit}`;
+  const url = `${API_URL}/api/posts?page=${page}&limit=${limit}/`;
 
   const res = await axios.get<ApiResponse<RawArticle>>(url);
 
@@ -80,7 +80,7 @@ export async function getPostByTag(
   page = 1,
   limit = 3
 ): Promise<ApiResponse<Article>> {
-  const url = `${API_URL}/api/posts/by_tag/${tag_id}?page=${page}&limit=${limit}`;
+  const url = `${API_URL}/api/posts/by_tag/${tag_id}?page=${page}&limit=${limit}/`;
 
   const res = await axios.get<ApiResponse<RawArticle>>(url);
 
@@ -110,7 +110,7 @@ export async function getPostByTag(
 export async function getPostById(
   id?: string
 ): Promise<ApiResponse<Article>> {
-  const url = `${API_URL}/api/posts/${id}`;
+  const url = `${API_URL}/api/posts/${id}/`;
 
   const res = await axios.get<ApiResponse<RawArticle>>(url);
 

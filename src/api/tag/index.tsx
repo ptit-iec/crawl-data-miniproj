@@ -19,7 +19,7 @@ interface RawTag {
 }
 
 export async function getAllTags(): Promise<ApiResponse<Tag>> {
-  const url = `${API_URL}/api/tags`; 
+  const url = `${API_URL}/api/tags/`; 
   const res = await axios.get<{ data: RawTag[] }>(url);
 
   const rawItems: RawTag[] = res.data.data || [];

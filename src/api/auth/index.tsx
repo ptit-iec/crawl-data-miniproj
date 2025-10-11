@@ -8,7 +8,7 @@ interface LoginResponse {
 export async function loginApi(username: string, password: string): Promise<LoginResponse> {
   try {
     const res = await axios.post<LoginResponse>(
-      `${API_URL}/api/authentication/token`,
+      `${API_URL}/api/authentication/token/`,
       new URLSearchParams({
         username,
         password,
@@ -33,7 +33,7 @@ export async function registerApi(
 ) {
   try {
     const res = await axios.post(
-      `${API_URL}/api/authentication/register`,
+      `${API_URL}/api/authentication/register/`,
       { username, email, password },
       {
         headers: {
