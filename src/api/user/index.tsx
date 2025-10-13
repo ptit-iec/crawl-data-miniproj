@@ -29,9 +29,12 @@ export async function getUserInfoApi(token: string): Promise<UserInfoResponse> {
 
   try {
     const res = await axios.get<UserInfoResponse>(
-      `${API_URL}api/user_info_posts/`,
+      `${API_URL}/api/user_info_posts/`, 
       {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
       }
     );
     return res.data;
@@ -42,6 +45,7 @@ export async function getUserInfoApi(token: string): Promise<UserInfoResponse> {
     throw new Error("Unexpected error occurred");
   }
 }
+
 
 export async function savePostApi(
   token: string,
