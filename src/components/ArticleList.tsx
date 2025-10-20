@@ -34,15 +34,15 @@ export default function ArticleList({
   enablePagination = false,
   itemsPerPage = ITEMS_PER_PAGE,
   showActions = true,
-  onLike,
+  // onLike,
   onSave,
 }: ArticleListProps) {
   const [currentPage, setCurrentPage] = useState(1);
 
   // Default handlers
-  const defaultHandleLike = (id: string) => {
-    console.log("Liked article:", id);
-  };
+  // const defaultHandleLike = (id: string) => {
+  //   console.log("Liked article:", id);
+  // };
 
 const defaultHandleSave = async (id: string) => {
   try {

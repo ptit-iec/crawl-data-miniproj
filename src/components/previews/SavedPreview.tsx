@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import ArticleList from "@/components/ArticleList";
 import { useAuth } from "@/lib/auth/AuthContext";
 import { getUserInfoApi } from "@/api/user";
-import { getPostById, Article } from "@/api/posts";
+import { getPostById } from "@/api/posts";
 import { useEffect, useState } from "react";
-
+import { Article } from "@/store/modules/post";
 export default function SavedPreview() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();

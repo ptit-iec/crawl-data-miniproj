@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import ArticlesPageLayout from "@/components/layout/ArticlesPageLayout";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { getUserInfoApi, UserTag } from "@/api/user";
-import { getPostById, Article } from "@/api/posts";
-
+import { getUserInfoApi } from "@/api/user";
+import { getPostById } from "@/api/posts";
+import { Article } from "@/store/modules/post";
+import { UserTag } from "@/store/modules/user";
 export default function SavedPageClient() {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();

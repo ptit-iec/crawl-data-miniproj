@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ArticleList from "@/components/ArticleList";
-import { getAllTags, Tag } from "@/api/tag";
-import { getPostByTag, Article } from "@/api/posts";
-
+import { getAllTags } from "@/api/tag";
+import { getPostByTag } from "@/api/posts";
+import { Article } from "@/store/modules/post";
+import { Tag } from "@/store/modules/Tag";
 export default function NewsPreview() {
   const router = useRouter();
   const [articles, setArticles] = useState<Article[]>([]);

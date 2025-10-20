@@ -2,13 +2,13 @@
 
 import { useState, useRef, useEffect } from "react";
 import {
-  Heart,
+  // Heart,
   Clock,
-  Eye,
+  // Eye,
   ExternalLink,
-  Share2,
+  // Share2,
   Bookmark,
-  Star,
+  // Star,
   Brain,
   Link as LinkIcon,
   ExternalLink as ExternalLinkIcon,

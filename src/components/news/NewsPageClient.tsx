@@ -3,11 +3,12 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import ArticlesPageLayout from "@/components/layout/ArticlesPageLayout";
-import { getPostByTag, Article } from "@/api/posts";
-import { getAllTags, Tag } from "@/api/tag";
+import { getPostByTag } from "@/api/posts";
+import { getAllTags } from "@/api/tag";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
+import { Article } from "@/store/modules/post";
+import { Tag } from "@/store/modules/Tag";
 export default function NewsPageClient() {
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");

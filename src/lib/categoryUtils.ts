@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { getAllTags,Tag } from "@/api/tag";
-import { getPostByTag, type Article } from "@/api/posts";
+import { getAllTags } from "@/api/tag";
+import { getPostByTag } from "@/api/posts";
 import { TrendingArticle } from "@/data/articles";
-
+import { Article } from "@/store/modules/post";
+import { Tag } from "@/store/modules/Tag";
 export function useArticlesByTag(tagName: string, limit = 6) {
   const [articles, setArticles] = useState<TrendingArticle[]>([]);
   const [loading, setLoading] = useState(true);
