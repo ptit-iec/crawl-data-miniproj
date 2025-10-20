@@ -19,7 +19,7 @@ export function useArticlesByTag(tagName: string, limit = 6) {
         );
 
         if (!targetTag) {
-          console.warn(`Không tìm thấy tag '${tagName}'`);
+        
           return;
         }
 
