@@ -5,7 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { getAllTags } from "@/api/tag";
-import { getPostByTag, Article } from "@/api/posts";
+import { getPostByTag } from "@/api/posts";
+import type { Article } from "@/store/modules/post";
 import { formatDate } from "@/lib/utils";
 export default function Hero() {
   const [articles, setArticles] = useState<Article[]>([]);
@@ -103,6 +104,7 @@ export default function Hero() {
                 alt={featuredArticle.name}
                 fill
                 priority
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 75vw, 50vw"
                 className="object-cover group-hover:scale-105 transition-transform duration-700 ease-in-out"
               />
 
@@ -175,6 +177,7 @@ export default function Hero() {
                     }
                     alt={article.name}
                     fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 33vw, 200px"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 </div>

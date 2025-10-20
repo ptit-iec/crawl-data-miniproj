@@ -59,12 +59,13 @@ export default function Header() {
             href="/"
             className="flex items-center gap-3 hover:opacity-80 transition-opacity"
           >
-              <Image
+             <Image
                 src="/thongtinkhcn/Logo_PTIT.png"
-                alt="PTIT IEC Logo"
-                width={120}   
-                height={40}
-                className="h-10 w-auto"
+                width={200}
+                height={100}
+                className="h-10"
+                style={{ width: "auto" }} 
+                alt="Logo PTIT"
               />
             <h1 className="text-xl font-bold gradient-text">TechNews</h1>
           </Link>

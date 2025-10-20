@@ -1,22 +1,8 @@
 import axios from "axios";
-
+import { Tag, RawTag, ApiResponse } from "../../store/modules/Tag/index";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export interface Tag {
-  id: string;
-  name: string;
-  description: string;
-}
 
-export interface ApiResponse<T> {
-  items: T[];
-}
-
-interface RawTag {
-  id: string;
-  name: string;
-  description?: string;
-}
 
 export async function getAllTags(): Promise<ApiResponse<Tag>> {
   const url = `${API_URL}/api/tags/`; 

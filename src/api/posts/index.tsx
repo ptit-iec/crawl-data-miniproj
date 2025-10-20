@@ -1,48 +1,7 @@
 import axios from "axios";
-
+import { Article, RawArticle, ApiResponse } from "../../store/modules/post/index";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export interface Article {
-  id: string;
-  name: string;
-  field: string;
-  des: string;
-  tags: string[];
-  supplier: string;
-  website: string;
-  contact_info: string;
-  address: string;
-  summarize: string;
-  internalLinks: string[];
-  externalLinks: string[];
-  imageUrl?: string;
-  publishedAt?: string;
-}
-
-export interface ApiResponse<T> {
-  items: T[];
-  total: number;
-  page: number;
-  size: number;
-  pages: number;
-}
-
-// Dữ liệu thô từ API
-interface RawArticle {
-  id: string;
-  title: string;
-  topic?: string[];
-  description?: string;
-  domain?: string;
-  url: string;
-  contact_info?: string;
-  address?: string;
-  summary?: string;
-  internalLinks?: string[];
-  externalLinks?: string[];
-  images?: string[];
-  time?: string;
-}
 
 export async function getAllPosts(
   page: number = 1,

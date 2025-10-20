@@ -1,28 +1,8 @@
 import axios  from "axios";
-
+import { SavePostResponse, UserInfoResponse } from "@/store/modules/user";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export interface UserTag {
-  id: string;
-  user_info: string;
-  tag: string;
-  post: string; 
-}
-export interface UserInfoResponse {
-  message: string;
-  status: string;
-  data: UserTag[];
-}
 
-export interface SavePostResponse {
-  message: string;
-  status: string;
-  data?: {
-    id: string;
-    user_info: string;
-    post: string;
-  };
-}
 
 export async function getUserInfoApi(token: string): Promise<UserInfoResponse> {
   if (!token) throw new Error("No token provided");
