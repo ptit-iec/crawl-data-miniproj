@@ -1,67 +1,86 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ArticleList from "@/components/ArticleList";
-import { getAllTags } from "@/api/tag";
-import { getPostByTag } from "@/api/posts";
-import { Article } from "@/store/modules/post";
-import { Tag } from "@/store/modules/Tag";
+// import { Article } from "@/store/modules/post";
+// import { Tag } from "@/store/modules/Tag";
+import { useDispatch,useSelector } from "react-redux";
+import { getAllPosts } from "@/api/posts";
+import { AppDispatch, RootState } from "@/store/configureStore";
+import { NewsArticle } from "@/types/news";
+import { Post } from "@/store/modules/post";
 export default function NewsPreview() {
+  const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [tags, setTags] = useState<Tag[]>([]);
-  const [loading, setLoading] = useState(false);
+  // const [articles, setArticles] = useState<Article[]>([]);
+  // const [tags, setTags] = useState<Tag[]>([]);
+  // const [loading, setLoading] = useState(false);
 
+  const listAllPost = useSelector((state : RootState) => state.post.allPosts.data);
+  const mapPostToArticle = (post: Post): NewsArticle => ({
+    id: post.id,
+    name: post.title,
+    field: post.domain,
+    des: post.summary || post.highlight || "",
+    tags: post.topic,
+    supplier: post.newspaper_publisher,
+    website: post.url,
+    summarize: post.summary,
+    externalLinks: post.references,
+  });
   useEffect(() => {
-    async function fetchArticles() {
-      try {
-        setLoading(true);
+    dispatch(getAllPosts({ page: 1, pageSize: 6 }));
+  },[dispatch])
+  // useEffect(() => {
+  //   async function fetchArticles() {
+  //     try {
+  //       setLoading(true);
 
-        const tagRes = await getAllTags();
-        setTags(tagRes.items);
+  //       const tagRes = await getAllTags();
+  //       setTags(tagRes.items);
 
-        const fixedTags = [
-          "ai",
-          "khcn",
-          "telecom",
-          "robotics",
-          "software",
-          "security",
-          "research",
-        ];
+  //       const fixedTags = [
+  //         "ai",
+  //         "khcn",
+  //         "telecom",
+  //         "robotics",
+  //         "software",
+  //         "security",
+  //         "research",
+  //       ];
 
-        const targetTags = tagRes.items.filter((t) =>
-          fixedTags.includes(t.name.toLowerCase())
-        );
+  //       const targetTags = tagRes.items.filter((t) =>
+  //         fixedTags.includes(t.name.toLowerCase())
+  //       );
 
   
-        const results = await Promise.all(
-          targetTags.map((t) => getPostByTag(t.id, 1, 3))
-        );
+  //       const results = await Promise.all(
+  //         targetTags.map((t) => getPostByTag(t.id, 1, 3))
+  //       );
 
 
-        const merged = results.flatMap((r) => r.items);
+  //       const merged = results.flatMap((r) => r.items);
 
 
-        merged.sort((a, b) => {
-          const dateA = new Date(a.publishedAt || 0).getTime();
-          const dateB = new Date(b.publishedAt || 0).getTime();
-          return dateB - dateA;
-        });
+  //       merged.sort((a, b) => {
+  //         const dateA = new Date(a.publishedAt || 0).getTime();
+  //         const dateB = new Date(b.publishedAt || 0).getTime();
+  //         return dateB - dateA;
+  //       });
 
 
-        setArticles(merged.slice(0, 6));
-      } catch (err) {
-        console.error("Error loading preview articles:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
+  //       setArticles(merged.slice(0, 6));
+  //     } catch (err) {
+  //       console.error("Error loading preview articles:", err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
 
-    fetchArticles();
-  }, []);
+  //   fetchArticles();
+  // }, []);
 
   // // Giữ nguyên logic like/save cũ
   // const toggleLike = (id: string) => {
@@ -100,16 +119,16 @@ export default function NewsPreview() {
       </div>
 
       {/* Articles Grid */}
-      <ArticleList
-        articles={articles}
-        layout="grid"
-        variant="news"
-        limit={6}
-        enablePagination={false}
-        // onLike={toggleLike}
-        // onSave={toggleSave}
-        showActions={true}
-      />
+        <ArticleList
+          articles={listAllPost.map(mapPostToArticle)}
+          layout="grid"
+          variant="news"
+          limit={6}
+          enablePagination={false}
+          // onLike={toggleLike}
+          // onSave={toggleSave}
+          showActions={true}
+        />
 
       <div className="text-center mt-6">
         <Button

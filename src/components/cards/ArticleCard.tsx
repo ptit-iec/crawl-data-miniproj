@@ -44,8 +44,8 @@ export default function ArticleCard({
   useEffect(() => {
     if (showSummary && articleRef.current) {
       const rect = articleRef.current.getBoundingClientRect();
-      console.log("Article position:", rect);
-      console.log("Window scroll:", window.scrollX, window.scrollY);
+      // console.log("Article position:", rect);
+      // console.log("Window scroll:", window.scrollX, window.scrollY);
 
       // Tính toán vị trí - hiển thị ngay trên đầu bài viết
       const newPosition = {
@@ -54,7 +54,7 @@ export default function ArticleCard({
         width: rect.width,
       };
 
-      console.log("Calculated popup position:", newPosition);
+      // console.log("Calculated popup position:", newPosition);
       setPosition(newPosition);
     }
   }, [showSummary]);
@@ -84,8 +84,8 @@ export default function ArticleCard({
 
   // Component Popup AI Summary
   const AISummaryPopup = () => {
-    console.log("Rendering popup for", article.name);
-    console.log("Popup position:", position);
+    // console.log("Rendering popup for", article.name);
+    // console.log("Popup position:", position);
 
     // Tính toán vị trí tốt nhất cho popup
     const viewportOffset = 20; // Khoảng cách từ đầu trang
@@ -208,20 +208,20 @@ export default function ArticleCard({
   };
 
   const handleMouseEnter = () => {
-    console.log(`Mouse enter on article: ${article.name} (${article.id})`);
-    console.log(`Summarize available: ${Boolean(article.summarize)}`);
-    console.log(`Summarize content: ${article.summarize}`);
-    console.log(
-      `Internal links: ${article.internalLinks?.length || 0}, External links: ${
-        article.externalLinks?.length || 0
-      }`
-    );
-    console.log(`Article data:`, article);
+    // console.log(`Mouse enter on article: ${article.name} (${article.id})`);
+    // console.log(`Summarize available: ${Boolean(article.summarize)}`);
+    // console.log(`Summarize content: ${article.summarize}`);
+    // console.log(
+    //   `Internal links: ${article.internalLinks?.length || 0}, External links: ${
+    //     article.externalLinks?.length || 0
+    //   }`
+    // );
+    // console.log(`Article data:`, article);
     setShowSummary(true);
   };
 
   const handleMouseLeave = () => {
-    console.log(`Mouse leave from article: ${article.name}`);
+    // console.log(`Mouse leave from article: ${article.name}`);
     setShowSummary(false);
   };
 

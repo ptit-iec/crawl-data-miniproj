@@ -113,15 +113,15 @@ export default function ArticlesPageLayout({
                   onChange={(e) => handleCategoryChange(e.target.value)}
                 >
                   <option value="">Tất cả danh mục</option>
-                  <option value="ai">Trí tuệ nhân tạo</option>
+                  <option value="research">
+                    Thông tin hoạt động nghiên cứu khoa học
+                  </option>
                   <option value="khcn">Hoạt động bộ KH&CN</option>
+                  <option value="ai">Trí tuệ nhân tạo</option>
                   <option value="telecom">Viễn thông và mạng</option>
                   <option value="robotics">Robotic và tự động hóa</option>
                   <option value="software">Phát triển phần mềm</option>
                   <option value="security">An toàn thông tin</option>
-                  <option value="research">
-                    Thông tin hoạt động nghiên cứu khoa học
-                  </option>
                 </select>
               </div>
 

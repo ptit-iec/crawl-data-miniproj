@@ -1,71 +1,13 @@
 import axios from "axios";
-import { Article, RawArticle, ApiResponse } from "../../store/modules/post/index";
+import { Article, RawArticle, ApiResponse, DataPostByTag } from "../../store/modules/post/index";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import callApi from "../callApi";
+import { startRequestAllPosts,requestAllPostsSuccess,requestAllPostsFail,
+  startRequestPostByTag, requestPostByTagSuccess, requestPostByTagFail,
 
-
-export async function getAllPosts(
-  page: number = 1,
-  limit: number = 10
-): Promise<ApiResponse<Article>> {
-  const url = `${API_URL}/api/posts?page=${page}&limit=${limit}/`;
-
-  const res = await axios.get<ApiResponse<RawArticle>>(url);
-
-  const normalized: ApiResponse<Article> = {
-    ...res.data,
-    items: res.data.items.map((item) => ({
-      id: item.id,
-      name: item.title,
-      field: item.topic?.[0] || "Chưa phân loại",
-      des: item.description || "",
-      tags: item.topic || [],
-      supplier: item.domain || "Unknown",
-      website: item.url,
-      contact_info: item.contact_info || "contact@unknown.com",
-      address: item.address || "Unknown",
-      summarize: item.summary || "",
-      internalLinks: item.internalLinks || [],
-      externalLinks: item.externalLinks || [],
-      imageUrl: item.images?.[0] || undefined,
-      publishedAt: item.time,
-    })),
-  };
-
-  return normalized;
-}
-
-export async function getPostByTag(
-  tag_id?: string,
-  page = 1,
-  limit = 3
-): Promise<ApiResponse<Article>> {
-  const url = `${API_URL}/api/posts/by_tag/${tag_id}?page=${page}&limit=${limit}/`;
-
-  const res = await axios.get<ApiResponse<RawArticle>>(url);
-
-  const normalized: ApiResponse<Article> = {
-    ...res.data,
-    items: res.data.items.map((item) => ({
-      id: item.id,
-      name: item.title,
-      field: item.topic?.[0] || "Chưa phân loại",
-      des: item.description || "",
-      tags: item.topic || [],
-      supplier: item.domain || "Unknown",
-      website: item.url,
-      contact_info: item.contact_info || "contact@unknown.com",
-      address: item.address || "Unknown",
-      summarize: item.summary || "",
-      internalLinks: item.internalLinks || [],
-      externalLinks: item.externalLinks || [],
-      imageUrl: item.images?.[0] || undefined,
-      publishedAt: item.time,
-    })),
-  };
-
-  return normalized;
-}
-
+} from "../../store/modules/post/index";
+import { AppDispatch } from "@/store/configureStore";
+import { AllPostData } from "../../store/modules/post/index";
 export async function getPostById(
   id?: string
 ): Promise<ApiResponse<Article>> {
@@ -94,4 +36,39 @@ export async function getPostById(
   };
 
   return normalized;
+}
+
+export const getAllPosts = (params?: { page?: number; pageSize?: number }) => async (dispatch : AppDispatch) => {
+  const page = params?.page ?? 1;
+  const pageSize = params?.pageSize ?? 10;
+  const path = `/api/posts/?page=${page}&pageSize=${pageSize}`;
+
+  return callApi ({
+    method : 'GET',
+    apiPath : path,
+    actionTypes: [
+      () => startRequestAllPosts(),
+      (payload) => requestAllPostsSuccess(payload as AllPostData),
+      () => requestAllPostsFail()
+    ],
+    dispatch,
+    variables: params,
+  })
+}
+export const getPostByTagId = (params?: { page?: number; pageSize?: number ;tag_id : string})  => async (dispatch : AppDispatch) => {
+  const page = params?.page ?? 1;
+  const pageSize = params?.pageSize ?? 3;
+  const tag_id = params?.tag_id;
+  const path = `/api/posts/by_tag/${tag_id}?page=${page}&pageSize=${pageSize}`
+  return callApi ({
+    method : 'GET',
+    apiPath : path,
+    actionTypes : [
+      () => startRequestPostByTag,
+      (payload) => requestPostByTagSuccess(payload as DataPostByTag), 
+      () => requestPostByTagFail
+    ] ,
+    dispatch,
+    variables : params,
+  })
 }

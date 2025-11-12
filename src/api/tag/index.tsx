@@ -1,22 +1,17 @@
-import axios from "axios";
-import { Tag, RawTag, ApiResponse } from "../../store/modules/Tag/index";
-const API_URL = process.env.NEXT_PUBLIC_API_URL;
+import callApi from "../callApi";
+import { startRequestAllTags,requestAllTagSuccess,requestAllTagFail, Tag } from "../../store/modules/Tag/index";
+import { AppDispatch } from "@/store/configureStore";
 
-
-
-export async function getAllTags(): Promise<ApiResponse<Tag>> {
-  const url = `${API_URL}/api/tags/`; 
-  const res = await axios.get<{ data: RawTag[] }>(url);
-
-  const rawItems: RawTag[] = res.data.data || [];
-
-  const normalized: ApiResponse<Tag> = {
-    items: rawItems.map((item) => ({
-      id: item.id,
-      name: item.name,
-      description: item.description || "",
-    })),
-  };
-
-  return normalized;
+export const getAllTags = () => async (dispatch : AppDispatch) => {
+  const path = `/api/tags/`;
+  return callApi ({
+    method : 'GET',
+    apiPath : path,
+    actionTypes : [
+      () => startRequestAllTags(),
+      (payload) => requestAllTagSuccess({ data: payload.data as Tag[] }),
+      () => requestAllTagFail()
+    ],
+    dispatch,
+  })
 }

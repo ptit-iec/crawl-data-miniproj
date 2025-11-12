@@ -89,14 +89,6 @@ export default function UserMenu() {
             Các bài viết đã lưu
           </Link>
 
-          <Link
-            href="/settings"
-            className="flex items-center gap-2 px-4 py-2 text-sm text-slate-300 hover:text-orange-400 hover:bg-slate-700"
-          >
-            <Settings className="w-4 h-4" />
-            Cài đặt
-          </Link>
-
           <button
             onClick={handleLogout}
             className="flex items-center gap-2 px-4 py-2 text-sm text-red-400 hover:text-red-300 hover:bg-slate-700 w-full text-left"

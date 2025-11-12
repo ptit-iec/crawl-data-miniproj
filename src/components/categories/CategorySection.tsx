@@ -4,12 +4,11 @@ import Link from "next/link";
 import {  ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ArticleList from "@/components/ArticleList";
-import { TrendingArticle } from "@/data/articles";
-
+import { NewsArticle } from "@/types/news";
 interface CategorySectionProps {
   title: string;
   categorySlug: string;
-  articles: TrendingArticle[];
+  articles: NewsArticle[];
   icon?: React.ReactNode;
 }
 

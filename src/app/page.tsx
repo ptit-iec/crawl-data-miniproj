@@ -1,5 +1,3 @@
-import Hero from "@/components/layout/Hero";
-import SavedPreview from "@/components/previews/SavedPreview";
 import NewsPreview from "@/components/previews/NewsPreview";
 import AISection from "@/components/categories/AISection";
 import KHCNSection from "@/components/categories/KHCNSection";
@@ -12,7 +10,7 @@ import ResearchSection from "@/components/categories/ResearchSection";
 export default function Home() {
   return (
     <main className="min-h-screen">
-      <Hero />
+      {/* <Hero /> */}
       <div className="container mx-auto px-4 py-8">
         {/* Latest News Section */}
         <div className="mt-12">
@@ -20,18 +18,18 @@ export default function Home() {
         </div>
 
         {/* Category Sections */}
-        <AISection />
+        <ResearchSection />
         <KHCNSection />
+        <AISection />
         <TelecomSection />
         <RoboticsSection />
         <SoftwareSection />
         <SecuritySection />
-        <ResearchSection />
 
         {/* My Saved Articles Section */}
-        <div className="mt-12">
+        {/* <div className="mt-12">
           <SavedPreview />
-        </div>
+        </div> */}
         
       </div>
     </main>

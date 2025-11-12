@@ -32,22 +32,22 @@ export default function Header() {
 
   const navLinks = [
     { name: "Trang chủ", href: "/" },
-    { name: "Tin tức", href: "/news" },
+    // { name: "Tin tức", href: "/news" },
     { name: "Đã lưu", href: "/saved", requireAuth: true },
   ];
 
   const categories = [
     { name: "Tất cả", href: "/news" },
-    { name: "Trí tuệ nhân tạo", href: "/news?category=ai" },
-    { name: "Hoạt động bộ KH&CN", href: "/news?category=khcn" },
-    { name: "Viễn thông và mạng", href: "/news?category=telecom" },
-    { name: "Robotic và tự động hóa", href: "/news?category=robotics" },
-    { name: "Phát triển phần mềm", href: "/news?category=software" },
-    { name: "An toàn thông tin", href: "/news?category=security" },
     {
       name: "Thông tin hoạt động nghiên cứu khoa học",
       href: "/news?category=research",
     },
+    { name: "Hoạt động bộ KH&CN", href: "/news?category=khcn" },
+    { name: "Trí tuệ nhân tạo", href: "/news?category=ai" },
+    { name: "Viễn thông và mạng", href: "/news?category=telecom" },
+    { name: "Robotic và tự động hóa", href: "/news?category=robotics" },
+    { name: "Phát triển phần mềm", href: "/news?category=software" },
+    { name: "An toàn thông tin", href: "/news?category=security" },
   ];
 
   return (
