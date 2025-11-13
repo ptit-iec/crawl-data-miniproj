@@ -1,12 +1,12 @@
 import axios, { AxiosRequestConfig, Method, ResponseType, AxiosError } from 'axios';
 import { Dispatch, Action } from '@reduxjs/toolkit';
-
+import { getAccessToken } from '@/lib/localStorage';
 interface CallApiParams<TRequest = unknown> {
     method: Method;
     apiPath: string;
     actionTypes: [
         (payload?: unknown) => Action, // request
-        (payload?: any) => Action, // success
+        (payload?: unknown) => Action, // success
         (payload?: unknown) => Action  // failure
     ];
     variables?: TRequest;
@@ -30,10 +30,7 @@ export default async function callApi<TRequest = unknown, TResponse = unknown>({
     responseType = 'json',
 }: CallApiParams<TRequest>): Promise<TResponse | void> {
     const baseUrlApi = process.env.NEXT_PUBLIC_API_URL;
-    let token: string | null = null;
-    if (typeof window !== 'undefined') {
-        token = localStorage.getItem('techNewsToken');
-    }
+    const token = getAccessToken();
 
     const defaultHeaders: Record<string, string> = {
         'Content-Type': 'application/json',
@@ -60,21 +57,21 @@ export default async function callApi<TRequest = unknown, TResponse = unknown>({
         return response.data;
     } catch (err: unknown) {
         const error = err as AxiosError;
-        const response = error.response ?? error;
-        console.log(response);
-        // vẫn giữ nguyên logic cũ, chỉ fix type
-        // if (response.status === 401) {
-        //     message.error(`Unauthorized`);
-        // } else if (response.status === 403 || response.status === 404) {
-        //     if (goToErrorPageWhenFail) {
-        //         // TODO: redirect error page
-        //     }
-        //     message.error(`API Error: ${response.data?.message}`);
-        //     dispatch(failureType(error.response?.message));
-        // } else {
-        //     dispatch(failureType(error.response?.message));
-        // }
+        const status = error.response?.status;
 
-        // return response;
+        if (status === 401) {
+            localStorage.removeItem('techNewsToken');
+            localStorage.removeItem('techNewsUser');
+            if (typeof window !== 'undefined') {
+            window.location.href = '/login';
+            }
+
+            console.error("Token hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.");
+        } 
+        else if (status === 403) {
+            console.error("Bạn không có quyền truy cập tài nguyên này.");
+        } 
+
+        dispatch(failureType(error.response?.data ?? error.message));
     }
 }

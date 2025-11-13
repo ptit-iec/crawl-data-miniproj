@@ -9,8 +9,7 @@ import ArticleList from "@/components/ArticleList";
 import { useDispatch,useSelector } from "react-redux";
 import { getAllPosts } from "@/api/posts";
 import { AppDispatch, RootState } from "@/store/configureStore";
-import { NewsArticle } from "@/types/news";
-import { Post } from "@/store/modules/post";
+import { Article, Post } from "@/store/modules/post";
 export default function NewsPreview() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -19,7 +18,7 @@ export default function NewsPreview() {
   // const [loading, setLoading] = useState(false);
 
   const listAllPost = useSelector((state : RootState) => state.post.allPosts.data);
-  const mapPostToArticle = (post: Post): NewsArticle => ({
+  const mapPostToArticle = (post: Post): Article => ({
     id: post.id,
     name: post.title,
     field: post.domain,
@@ -27,8 +26,13 @@ export default function NewsPreview() {
     tags: post.topic,
     supplier: post.newspaper_publisher,
     website: post.url,
+    contact_info: "",
+    address: "",
     summarize: post.summary,
+    internalLinks: [],
     externalLinks: post.references,
+    imageUrl: post.images?.[0] || "",
+    publishedAt: post.time || "",
   });
   useEffect(() => {
     dispatch(getAllPosts({ page: 1, pageSize: 6 }));

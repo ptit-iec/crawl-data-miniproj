@@ -4,69 +4,17 @@ import { Bookmark, ExternalLink } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ArticleList from "@/components/ArticleList";
-import { useAuth } from "@/lib/auth/AuthContext";
-import { getUserInfoApi } from "@/api/user";
-import { getPostById } from "@/api/posts";
-import { useEffect, useState } from "react";
+// import { useAuth } from "@/lib/auth/AuthContext";
+// import { getUserInfoApi } from "@/api/user";
+// import { getPostById } from "@/api/posts";
+import { useState } from "react";
 import { Article } from "@/store/modules/post";
 export default function SavedPreview() {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [articles, setArticles] = useState<Article[]>([]);
+  // const { isAuthenticated } = useAuth();
+  // const [loading, setLoading] = useState(false);
+  const [articles] = useState<Article[]>([]);
 
-  async function fetchArticlesByIds(ids: string[]) {
-  try {
-    setLoading(true);
-
-
-    console.log(ids);
-    
-    const results = await Promise.all(ids.map((id) => getPostById(id)));
-
-
-    const allArticles: Article[] = results.flatMap((res) => res.items ?? []);
-
-
-    allArticles.sort((a, b) => {
-      const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
-      const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
-      return dateB - dateA;
-    });
-    setArticles(allArticles.slice(0, 6));
-  } catch (err) {
-    console.error("Error loading preview articles:", err);
-  } finally {
-    setLoading(false);
-  }
-}
-
-useEffect(() => {
-  const token = localStorage.getItem("techNewsToken");
-  if (!token) return;
-
-  async function fetchAndLoad() {
-    try {
-      const userInfo = await getUserInfoApi(token!);
-
-      const ids: string[] = userInfo.data.map(
-        (item: { post: string }) => item.post
-      );
-
-      if (ids.length > 0) {
-        await fetchArticlesByIds(ids);
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        console.error("Error fetching user info:", error.message);
-      } else {
-        console.error("Unexpected error:", error);
-      }
-    }
-  }
-
-  fetchAndLoad();
-}, []);
 
   return (
     <section className="py-8">

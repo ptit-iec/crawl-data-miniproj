@@ -77,10 +77,15 @@ export interface PostState {
     isLoading: boolean;
   };
   postsByTag: {
-    data: Post[];
-    pagination?: Omit<DataPostByTag, "items">;
-    isLoading: boolean;
+    [tagId: string]: {
+      data: Post[];
+      pagination?: Omit<DataPostByTag, "items">;
+      isLoading: boolean;
+    };
   };
+  postDetail: Post | undefined;
+  isLoadingPostDetail: boolean;
+  savedPosts: Post[];
 }
 
 const initialState: PostState = {
@@ -89,18 +94,16 @@ const initialState: PostState = {
     pagination: undefined,
     isLoading: false,
   },
-  postsByTag: {
-    data: [],
-    pagination: undefined,
-    isLoading: false,
-  },
+  postsByTag: {}, // Đổi thành object rỗng
+  postDetail: undefined,
+  isLoadingPostDetail: false,
+  savedPosts: [],
 };
-
 export const postSlice = createSlice({
-  name : 'post',
+  name: 'post',
   initialState,
-  reducers : {
-    startRequestAllPosts : (state) => {
+  reducers: {
+    startRequestAllPosts: (state) => {
       state.allPosts.isLoading = true;
     },
     requestAllPostsSuccess: (state, action: PayloadAction<AllPostData>) => {
@@ -113,31 +116,90 @@ export const postSlice = createSlice({
         pages: action.payload.pages,
       };
     },
-    requestAllPostsFail : (state) => {
+    requestAllPostsFail: (state) => {
       state.allPosts.isLoading = false;
     },
-    startRequestPostByTag : (state) => {
-      state.postsByTag.isLoading = true;
+    
+    // Thêm tagId vào payload
+    startRequestPostByTag: (state, action: PayloadAction<{ tagId: string }>) => {
+      if (!state.postsByTag[action.payload.tagId]) {
+        state.postsByTag[action.payload.tagId] = {
+          data: [],
+          pagination: undefined,
+          isLoading: false,
+        };
+      }
+      state.postsByTag[action.payload.tagId].isLoading = true;
     },
-    requestPostByTagSuccess: (state, action: PayloadAction<DataPostByTag>) => {
-      state.postsByTag.isLoading = false;
-      state.postsByTag.data = action.payload.items;
-      state.postsByTag.pagination = {
-        total: action.payload.total,
-        page: action.payload.page,
-        size: action.payload.size,
-        pages: action.payload.pages,
+    
+    requestPostByTagSuccess: (
+      state,
+      action: PayloadAction<{ tagId: string; data: DataPostByTag }>
+    ) => {
+      const { tagId, data } = action.payload;
+      if (!state.postsByTag[tagId]) {
+        state.postsByTag[tagId] = {
+          data: [],
+          pagination: undefined,
+          isLoading: false,
+        };
+      }
+      state.postsByTag[tagId].isLoading = false;
+      state.postsByTag[tagId].data = data.items;
+      state.postsByTag[tagId].pagination = {
+        total: data.total,
+        page: data.page,
+        size: data.size,
+        pages: data.pages,
       };
     },
-    requestPostByTagFail : (state) => {
-      state.postsByTag.isLoading = false;
+    
+    requestPostByTagFail: (state, action: PayloadAction<{ tagId: string }>) => {
+      if (state.postsByTag[action.payload.tagId]) {
+        state.postsByTag[action.payload.tagId].isLoading = false;
+      }
     },
+    
+    startRequestPostByPostId: (state) => {
+      state.isLoadingPostDetail = true;
+    },
+    requestPostByPostIdSuccess: (state, action: PayloadAction<{ data: Post }>) => {
+      state.isLoadingPostDetail = false;
+      state.postDetail = action.payload.data;
+      const exists = state.savedPosts.some(post => post.id === action.payload.data.id);
+      if (!exists) {
+        state.savedPosts.push(action.payload.data);
+      }
+    },
+    requestPostByPostIdFail: (state) => {
+      state.isLoadingPostDetail = false;
+    },
+    resetPostsByTag: (state) => {
+      state.postsByTag = {};
+    },
+  
+    // Reset một tag cụ thể
+    resetPostsByTagId: (state, action: PayloadAction<{ tagId: string }>) => {
+      if (state.postsByTag[action.payload.tagId]) {
+        delete state.postsByTag[action.payload.tagId];
+      }
+    },
+    
+    // Reset allPosts
+    resetAllPosts: (state) => {
+      state.allPosts = {
+        data: [],
+        pagination: undefined,
+        isLoading: false,
+      };
+  },
   },
 });
-
 export const {
   startRequestAllPosts, requestAllPostsSuccess, requestAllPostsFail,
   startRequestPostByTag, requestPostByTagSuccess, requestPostByTagFail,
+  startRequestPostByPostId,requestPostByPostIdSuccess,requestPostByPostIdFail,
+  resetPostsByTag, resetPostsByTagId, resetAllPosts,
 } = postSlice.actions;
 
 export default postSlice.reducer;

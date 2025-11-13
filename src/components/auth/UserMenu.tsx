@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth/AuthContext";
-import { User, LogOut, Settings, BookMarked } from "lucide-react";
+import { User, LogOut, BookMarked } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function UserMenu() {

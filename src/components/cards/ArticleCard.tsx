@@ -38,6 +38,7 @@ export default function ArticleCard({
   showActions = true,
 }: ArticleCardProps) {
   const [showSummary, setShowSummary] = useState(false);
+  const [imageError, setImageError] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
   const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
 
@@ -235,16 +236,19 @@ export default function ArticleCard({
       >
         {showSummary && <AISummaryPopup />}
         <div className="relative overflow-hidden">
-          <Image
-            src={
-              article.imageUrl ||
-              `https://picsum.photos/400/250?random=${article.name.length}`
-            }
-            alt={article.name}
-            width={400}
-            height={250}
-            className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-          />
+          {!imageError && article.name && (
+            <Image
+              src={
+                article.imageUrl ||
+                `https://picsum.photos/400/250?random=${(article.name || '').length}`
+              }
+              alt={article.name || 'Article'}
+              width={400}
+              height={250}
+              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+              onError={() => setImageError(true)}
+            />
+          )}
 
           {/* Action Buttons */}
           {showActions && (
@@ -272,12 +276,12 @@ export default function ArticleCard({
             <h3
               className={`text-lg font-semibold text-white mb-2 group-hover:${colors.accent} transition-colors leading-tight line-clamp-2`}
             >
-              {article.name}
+              {article.name || 'Bài viết không có tiêu đề'}
             </h3>
           </Link>
 
           <p className="text-slate-300 text-sm mb-4 line-clamp-3 leading-relaxed">
-            {article.des}
+            {article.des || 'Không có mô tả'}
           </p>
 
           {/* Tags */}
@@ -336,16 +340,19 @@ export default function ArticleCard({
         {/* Image */}
         <div className="lg:w-40 lg:flex-shrink-0">
           <div className="relative overflow-hidden h-32 lg:h-full">
-            <Image
+            {!imageError && article.name && (
+              <Image
                 src={
                   article.imageUrl ||
-                  `https://picsum.photos/400/250?random=${article.name.length}`
+                  `https://picsum.photos/400/250?random=${(article.name || '').length}`
                 }
-                alt={article.name}
+                alt={article.name || 'Article'}
                 width={400}
                 height={250}
                 className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                onError={() => setImageError(true)}
               />
+            )}
 
             {/* Action Buttons */}
             {showActions && (
@@ -376,7 +383,7 @@ export default function ArticleCard({
               <h3
                 className={`text-lg font-semibold text-white mb-1 group-hover:${colors.accent} transition-colors leading-tight`}
               >
-                {article.name}
+                {article.name || 'Bài viết không có tiêu đề'}
               </h3>
             </Link>
             <span
@@ -389,7 +396,7 @@ export default function ArticleCard({
           </div>
 
           <p className="text-slate-300 text-sm mb-3 leading-relaxed">
-            {article.des}
+            {article.des || 'Không có mô tả'}
           </p>
 
           {/* Tags */}

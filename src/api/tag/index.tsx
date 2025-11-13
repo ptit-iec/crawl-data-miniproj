@@ -9,7 +9,7 @@ export const getAllTags = () => async (dispatch : AppDispatch) => {
     apiPath : path,
     actionTypes : [
       () => startRequestAllTags(),
-      (payload) => requestAllTagSuccess({ data: payload.data as Tag[] }),
+      (payload) => requestAllTagSuccess({ data: (payload as { data: Tag[] }).data }),
       () => requestAllTagFail()
     ],
     dispatch,

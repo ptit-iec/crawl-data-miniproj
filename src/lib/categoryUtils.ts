@@ -10,66 +10,82 @@ export function useArticlesByTag(tagName: string, limit = 6) {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
   const [isValidTag, setIsValidTag] = useState(false);
+  const [currentTagId, setCurrentTagId] = useState<string | null>(null);
 
   const dispatch = useDispatch<AppDispatch>();
-  const listTags = useSelector((state : RootState) => state.tag.listAllTag);
-  const postData = useSelector((state : RootState) => state.post.postsByTag.data);
+  const listTags = useSelector((state: RootState) => state.tag.listAllTag);
+  
+  // Lấy data theo tagId cụ thể
+  const postData = useSelector((state: RootState) => 
+    currentTagId ? state.post.postsByTag[currentTagId]?.data : undefined
+  );
+  
+  const isLoadingData = useSelector((state: RootState) => 
+    currentTagId ? state.post.postsByTag[currentTagId]?.isLoading ?? true : true
+  );
+
   const mapPostToArticle = (post: Post): NewsArticle => ({
-      id: post.id,
-      name: post.title,
-      field: post.domain,
-      des: post.summary || post.highlight || "",
-      tags: post.topic,
-      supplier: post.newspaper_publisher,
-      website: post.url,
-      summarize: post.summary,
-      externalLinks: post.references,
+    id: post.id,
+    name: post.title,
+    field: post.domain,
+    des: post.summary || post.highlight || "",
+    tags: post.topic,
+    supplier: post.newspaper_publisher,
+    website: post.url,
+    summarize: post.summary,
+    externalLinks: post.references,
   });
+
   useEffect(() => {
     dispatch(getAllTags());
-  },[dispatch])
-  // useEffect(() => {
-  //   console.log(listTags);
-  // },[listTags])
+  }, [dispatch]);
+
   useEffect(() => {
-    if (!listTags.length) {
+    if (!listTags || !listTags.length) {
       setIsValidTag(false);
+      setLoading(false);
       return;
     }
 
     const targetTag = listTags.find(
       (tag: Tag) => tag.name.toLowerCase() === tagName.toLowerCase()
-    );    
+    );
+
     if (!targetTag) {
       setIsValidTag(false);
-      setArticles([]);  
+      setCurrentTagId(null);
+      setArticles([]);
       setLoading(false);
       return;
     }
 
+    const tagIdStr = targetTag.id.toString();
     setIsValidTag(true);
-    setLoading(true);
-    dispatch(getPostByTagId({ tag_id: targetTag.id }));
+    setCurrentTagId(tagIdStr);
+    
+    // Dispatch với tag_id là string
+    dispatch(getPostByTagId({ tag_id: tagIdStr }));
   }, [dispatch, listTags, tagName]);
 
   useEffect(() => {
-    if (!isValidTag) {
+    if (!isValidTag || !currentTagId) {
       setArticles([]);
       setLoading(false);
       return;
     }
+
+    setLoading(isLoadingData);
 
     if (!postData || !postData.length) {
-      setArticles([]);
-      setLoading(false);
+      if (!isLoadingData) {
+        setArticles([]);
+      }
       return;
     }
 
-    const mappedArticles = postData.map(mapPostToArticle);
+    const mappedArticles = postData.slice(0, limit).map(mapPostToArticle);
     setArticles(mappedArticles);
-    setLoading(false);
-  }, [postData, isValidTag]);
-
+  }, [postData, isValidTag, currentTagId, isLoadingData, limit]);
 
   return { articles, loading };
 }

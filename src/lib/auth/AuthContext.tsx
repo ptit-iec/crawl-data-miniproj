@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Khi app reload → kiểm tra token + user
+
     const checkAuth = async () => {
       try {
         const storedUser = localStorage.getItem("techNewsUser");

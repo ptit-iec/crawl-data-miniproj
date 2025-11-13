@@ -127,13 +127,13 @@ export default function Header() {
 
           {/* Right Side Actions */}
           <div className="flex items-center space-x-4">
-            <Button
+            {/* <Button
               variant="ghost"
               size="sm"
               className="hidden sm:flex text-slate-300 hover:text-orange-400"
             >
               <Search className="w-4 h-4" />
-            </Button>
+            </Button> */}
             <Button
               variant="ghost"
               size="sm"

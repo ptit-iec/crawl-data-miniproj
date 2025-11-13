@@ -10,7 +10,9 @@ import type {
   FavoriteArticle,
   NewsGridItem,
 } from "@/data/articles";
-import { savePostApi } from "@/api/user";
+import { handleSavePost } from "@/api/user";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "@/store/configureStore";
 interface ArticleListProps {
   articles: (NewsArticle &
     Partial<SavedArticle & FavoriteArticle & NewsGridItem>)[];
@@ -44,25 +46,10 @@ export default function ArticleList({
   //   console.log("Liked article:", id);
   // };
 
-const defaultHandleSave = async (id: string) => {
-  try {
-    const token = localStorage.getItem("techNewsToken");
-    if (!token) {
-      console.error("No token available");
-      return;
-    }
-
-    console.log("Saving article:", id);
-    await savePostApi(token, id);
-    console.log("Saved successfully:", id);
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      console.error("Save failed:", error.message);
-    } else {
-      console.error("Save failed: Unknown error", error);
-    }
-  }
-};
+  const defaultHandleSave = async (id: string) => {
+    if (id)
+      dispatch(handleSavePost(id));
+  };
 
   // Merge custom or default
   // const handleLike = onLike || defaultHandleLike;
@@ -98,7 +85,7 @@ const defaultHandleSave = async (id: string) => {
   };
 
   const buttonColor = getVariantColors(variant);
-
+  const dispatch = useDispatch<AppDispatch>();
   return (
     <section className="py-8">
       {/* Articles Grid/List */}
@@ -109,9 +96,9 @@ const defaultHandleSave = async (id: string) => {
             : "space-y-4"
         }
       >
-        {currentArticles.map((article) => (
+        {currentArticles.map((article, index) => (
           <ArticleCard
-            key={article.id || article.name}
+            key={article.id || article.name || index}
             article={article}
             layout={layout}
             variant={variant}

@@ -1,6 +1,4 @@
 "use client";
-
-import { useRouter } from "next/navigation";
 import { Newspaper, Heart, Bookmark } from "lucide-react";
 import ArticleList from "@/components/ArticleList";
 import type { NewsArticle } from "@/types/news";
@@ -18,11 +16,7 @@ interface ArticlesPageLayoutProps {
   variant: "favorites" | "saved" | "news";
   onSave?: (id: string) => void;
   categoryParam?: string | null;
-  paginationControls?: React.ReactNode;
-  sortBy?: "newest" | "oldest";
-  onSortChange?: (sortBy: "newest" | "oldest") => void;
-  timeRange?: "all" | "today" | "week" | "month";
-  onTimeRangeChange?: (timeRange: "all" | "today" | "week" | "month") => void;
+  paginationControls?: React.ReactNode; 
 }
 const getGradientClasses = (variant: string) => {
   const gradients = {
@@ -49,14 +43,14 @@ const getIconComponent = (icon: string) => {
   };
   return icons[icon as keyof typeof icons] || Newspaper;
 };
-const getFilterColors = (variant: string) => {
-  const colors = {
-    favorites: "focus:ring-pink-500 focus:border-pink-500",
-    saved: "focus:ring-blue-500 focus:border-blue-500",
-    news: "focus:ring-emerald-500 focus:border-emerald-500",
-  };
-  return colors[variant as keyof typeof colors] || colors.news;
-};
+// const getFilterColors = (variant: string) => {
+//   const colors = {
+//     favorites: "focus:ring-pink-500 focus:border-pink-500",
+//     saved: "focus:ring-blue-500 focus:border-blue-500",
+//     news: "focus:ring-emerald-500 focus:border-emerald-500",
+//   };
+//   return colors[variant as keyof typeof colors] || colors.news;
+// };
 
 export default function ArticlesPageLayout({
   title,
@@ -65,27 +59,23 @@ export default function ArticlesPageLayout({
   articles,
   variant,
   onSave,
-  categoryParam,
-  paginationControls,
-  sortBy = "newest",
-  onSortChange,
-  timeRange = "all",
-  onTimeRangeChange,
+  // categoryParam,
+  paginationControls
 }: ArticlesPageLayoutProps) {
-  const router = useRouter();
+  // const router = useRouter();
 
   const IconComponent = getIconComponent(icon);
   const gradientClasses = getGradientClasses(variant);
   const accentColor = getAccentColor(variant);
-  const filterColors = getFilterColors(variant);
+  // const filterColors = getFilterColors(variant);
 
-  const handleCategoryChange = (value: string) => {
-    if (value) {
-      router.push(`/news?category=${value}`);
-    } else {
-      router.push("/news");
-    }
-  };
+  // const handleCategoryChange = (value: string) => {
+  //   if (value) {
+  //     router.push(`/saved?category=${value}`);
+  //   } else {
+  //     router.push("/saved");
+  //   }
+  // };
 
   return (
     <div className={`min-h-screen bg-gradient-to-br ${gradientClasses}`}>
@@ -104,7 +94,7 @@ export default function ArticlesPageLayout({
         </div>
 
         {/* Advanced Filters & Controls */}
-        <section className="mb-8">
+        {/* <section className="mb-8">
           <div className="bg-slate-800/50 backdrop-blur-sm rounded-lg border border-slate-700 max-w-3xl mx-auto p-3">
             <h2 className="text-lg font-semibold text-white mb-3">
               Bộ lọc nâng cao
@@ -140,13 +130,11 @@ export default function ArticlesPageLayout({
                 <select
                   title="Sort articles"
                   className={`w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white focus:ring-2 ${filterColors}`}
-                  value={sortBy}
-                  onChange={(e) => onSortChange?.(e.target.value as "newest" | "oldest" )}
                 >
-                  <option value="newest">Mới nhất</option>
-                  <option value="oldest">Cũ nhất</option>
-                  {/* <option value="popular">Phổ biến nhất</option>
-                  <option value="trending">Xu hướng</option> */}
+                  <option>Mới nhất</option>
+                  <option>Phổ biến nhất</option>
+                  <option>Xem nhiều nhất</option>
+                  <option>Xu hướng</option>
                 </select>
               </div>
 
@@ -157,18 +145,16 @@ export default function ArticlesPageLayout({
                 <select
                   title="Select time range"
                   className={`w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white focus:ring-2 ${filterColors}`}
-                  value={timeRange}
-                  onChange={(e) => onTimeRangeChange?.(e.target.value as "all" | "today" | "week" | "month")}
                 >
-                  <option value="all">Tất cả</option>
-                  <option value="today">Hôm nay</option>
-                  <option value="week">Tuần này</option>
-                  <option value="month">Tháng này</option>
+                  <option>Tất cả</option>
+                  <option>Hôm nay</option>
+                  <option>Tuần này</option>
+                  <option>Tháng này</option>
                 </select>
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
          <ArticleList
           articles={articles}
