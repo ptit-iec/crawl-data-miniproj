@@ -63,7 +63,7 @@ export default async function callApi<TRequest = unknown, TResponse = unknown>({
             localStorage.removeItem('techNewsToken');
             localStorage.removeItem('techNewsUser');
             if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+            window.location.href = '/thongtinkhcn/auth/login';
             }
 
             console.error("Token hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.");

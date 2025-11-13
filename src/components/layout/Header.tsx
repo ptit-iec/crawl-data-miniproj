@@ -134,13 +134,13 @@ export default function Header() {
             >
               <Search className="w-4 h-4" />
             </Button> */}
-            <Button
+            {/* <Button
               variant="ghost"
               size="sm"
               className="hidden sm:flex text-slate-300 hover:text-orange-400"
             >
               <Bell className="w-4 h-4" />
-            </Button>
+            </Button> */}
 
             {/* User Menu */}
             <div className="hidden sm:block">
