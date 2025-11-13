@@ -1,23 +1,31 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ArticleList from "@/components/ArticleList";
-// import { Article } from "@/store/modules/post";
-// import { Tag } from "@/store/modules/Tag";
-import { useDispatch,useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getAllPosts } from "@/api/posts";
 import { AppDispatch, RootState } from "@/store/configureStore";
 import { Article, Post } from "@/store/modules/post";
+
+const fixedTags = [
+  "ai",
+  "khcn",
+  "telecom",
+  "robotics",
+  "software",
+  "security",
+  "research",
+];
+
 export default function NewsPreview() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  // const [articles, setArticles] = useState<Article[]>([]);
-  // const [tags, setTags] = useState<Tag[]>([]);
-  // const [loading, setLoading] = useState(false);
+  const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
 
-  const listAllPost = useSelector((state : RootState) => state.post.allPosts.data);
+  const listAllPost = useSelector((state: RootState) => state.post.allPosts.data);
+
   const mapPostToArticle = (post: Post): Article => ({
     id: post.id,
     name: post.title,
@@ -34,80 +42,28 @@ export default function NewsPreview() {
     imageUrl: post.images?.[0] || "",
     publishedAt: post.time || "",
   });
+
+  const hasValidTopic = (topics: string[] | undefined): boolean => {
+    if (!topics || topics.length === 0) return false;
+    return topics.some((topic) =>
+      fixedTags.some((fixedTag) =>
+        topic.toLowerCase().includes(fixedTag.toLowerCase())
+      )
+    );
+  };
+
   useEffect(() => {
-    dispatch(getAllPosts({ page: 1, pageSize: 6 }));
-  },[dispatch])
-  // useEffect(() => {
-  //   async function fetchArticles() {
-  //     try {
-  //       setLoading(true);
+    dispatch(getAllPosts({ page: 1, pageSize: 10 }));
+  }, [dispatch]);
 
-  //       const tagRes = await getAllTags();
-  //       setTags(tagRes.items);
-
-  //       const fixedTags = [
-  //         "ai",
-  //         "khcn",
-  //         "telecom",
-  //         "robotics",
-  //         "software",
-  //         "security",
-  //         "research",
-  //       ];
-
-  //       const targetTags = tagRes.items.filter((t) =>
-  //         fixedTags.includes(t.name.toLowerCase())
-  //       );
-
-  
-  //       const results = await Promise.all(
-  //         targetTags.map((t) => getPostByTag(t.id, 1, 3))
-  //       );
-
-
-  //       const merged = results.flatMap((r) => r.items);
-
-
-  //       merged.sort((a, b) => {
-  //         const dateA = new Date(a.publishedAt || 0).getTime();
-  //         const dateB = new Date(b.publishedAt || 0).getTime();
-  //         return dateB - dateA;
-  //       });
-
-
-  //       setArticles(merged.slice(0, 6));
-  //     } catch (err) {
-  //       console.error("Error loading preview articles:", err);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
-
-  //   fetchArticles();
-  // }, []);
-
-  // // Giữ nguyên logic like/save cũ
-  // const toggleLike = (id: string) => {
-  //   setArticles((prev) =>
-  //     prev.map((article) =>
-  //       article.id === id
-  //         ? {
-  //             ...article,
-  //             isLiked: !article.isLiked,
-  //             likes: article.isLiked ? article.likes - 1 : article.likes + 1,
-  //           }
-  //         : article
-  //     )
-  //   );
-  // };
-
-  // const toggleSave = (id: string) => {
-  //   setArticles((prev) =>
-  //     prev.map((article) =>
-  //       article.id === id ? { ...article, isSaved: !article.isSaved } : article
-  //     )
-  //   );
-  // };
+  useEffect(() => {
+    // Lọc các bài viết có topic thuộc fixedTags
+    const filtered = listAllPost
+      .filter((post) => hasValidTopic(post.topic))
+      .map(mapPostToArticle);
+    
+    setFilteredArticles(filtered);
+  }, [listAllPost]);
 
   return (
     <section className="py-8">
@@ -123,16 +79,14 @@ export default function NewsPreview() {
       </div>
 
       {/* Articles Grid */}
-        <ArticleList
-          articles={listAllPost.map(mapPostToArticle)}
-          layout="grid"
-          variant="news"
-          limit={6}
-          enablePagination={false}
-          // onLike={toggleLike}
-          // onSave={toggleSave}
-          showActions={true}
-        />
+      <ArticleList
+        articles={filteredArticles}
+        layout="grid"
+        variant="news"
+        limit={6}
+        enablePagination={false}
+        showActions={true}
+      />
 
       <div className="text-center mt-6">
         <Button
