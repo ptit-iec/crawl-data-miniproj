@@ -250,7 +250,7 @@ export default function NewsPageClient() {
         onTimeRangeChange={setTimeRange}
         // loading={loading}
         paginationControls={
-          paginationInfo && total > 0 ? (
+          paginationInfo && total > 0 && articles.length > 0 ? (
             <div className="flex flex-col items-center gap-4 mt-8 mb-4">
               {/* Pagination info */}
               <div className="flex items-center gap-4 text-sm text-slate-400">
