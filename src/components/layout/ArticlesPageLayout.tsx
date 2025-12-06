@@ -124,7 +124,7 @@ export default function ArticlesPageLayout({
                   <option value="research">
                     Thông tin hoạt động nghiên cứu khoa học
                   </option>
-                  <option value="khcn">Hoạt động bộ KH&CN</option>
+                  <option value="kh&cn">Hoạt động bộ KH&CN</option>
                   <option value="ai">Trí tuệ nhân tạo</option>
                   <option value="telecom">Viễn thông và mạng</option>
                   <option value="robotics">Robotic và tự động hóa</option>

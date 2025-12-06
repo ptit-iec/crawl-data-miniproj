@@ -30,6 +30,16 @@ interface ArticleCardProps {
   showActions?: boolean;
 }
 
+// Utility function to convert protocol-relative URLs to absolute URLs
+const normalizeImageUrl = (url: string | undefined): string => {
+  if (!url) return '';
+  // Convert protocol-relative URL to https
+  if (url.startsWith('//')) {
+    return `https:${url}`;
+  }
+  return url;
+};
+
 export default function ArticleCard({
   article,
   layout,
@@ -286,9 +296,9 @@ export default function ArticleCard({
 
           {/* Tags */}
           <div className="flex flex-wrap gap-2 mb-4">
-            {article.tags?.slice(0, 3).map((tag: string) => (
+            {article.tags?.slice(0, 3).map((tag: string, index: number) => (
               <span
-                key={tag}
+                key={`${tag}-${index}`}
                 className="px-2 py-1 bg-slate-700/70 text-slate-300 text-xs rounded-md hover:bg-slate-600 transition-colors cursor-pointer"
               >
                 #{tag}
@@ -343,7 +353,7 @@ export default function ArticleCard({
             {!imageError && article.name && (
               <Image
                 src={
-                  article.imageUrl ||
+                  normalizeImageUrl(article.imageUrl) ||
                   `https://picsum.photos/400/250?random=${(article.name || '').length}`
                 }
                 alt={article.name || 'Article'}

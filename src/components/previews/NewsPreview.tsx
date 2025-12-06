@@ -11,13 +11,23 @@ import { Article, Post } from "@/store/modules/post";
 
 const fixedTags = [
   "ai",
-  "khcn",
+  "kh&cn",
   "telecom",
   "robotics",
   "software",
   "security",
   "research",
 ];
+
+const tagRelations: Record<string, string[]> = {
+  ai: ["artificial intelligence", "machine learning", "deep learning", "neural network", "gpt", "llm", "generative ai"],
+  "kh&cn": ["khoa học", "công nghệ", "science", "technology"],
+  telecom: ["telecommunications", "5g", "6g", "network", "wireless", "communication"],
+  robotics: ["robot", "automation", "autonomous", "self-driving", "fsd", "avs", "drone", "autonomous vehicles"],
+  software: ["app", "application", "program", "code", "development", "erp", "saas"],
+  security: ["cybersecurity", "cyber security", "encryption", "privacy", "hacking", "vulnerability"],
+  research: ["nghiên cứu", "study", "innovation", "development", "r&d"],
+};
 
 export default function NewsPreview() {
   const dispatch = useDispatch<AppDispatch>();
@@ -43,11 +53,23 @@ export default function NewsPreview() {
     publishedAt: post.time || "",
   });
 
+  const isTagRelatedToFixedTag = (tagName: string, fixedTag: string): boolean => {
+    const tagLower = tagName.toLowerCase();
+    const fixedTagLower = fixedTag.toLowerCase();
+    
+    if (tagLower.includes(fixedTagLower)) {
+      return true;
+    }
+    
+    const relatedKeywords = tagRelations[fixedTag] || [];
+    return relatedKeywords.some(keyword => tagLower.includes(keyword.toLowerCase()));
+  };
+
   const hasValidTopic = (topics: string[] | undefined): boolean => {
     if (!topics || topics.length === 0) return false;
     return topics.some((topic) =>
       fixedTags.some((fixedTag) =>
-        topic.toLowerCase().includes(fixedTag.toLowerCase())
+        isTagRelatedToFixedTag(topic, fixedTag)
       )
     );
   };

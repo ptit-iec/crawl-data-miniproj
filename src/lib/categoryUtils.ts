@@ -6,6 +6,27 @@ import { AppDispatch, RootState } from "@/store/configureStore";
 import { getPostByTagId } from "@/api/posts";
 import { Post } from "@/store/modules/post";
 import { NewsArticle } from "@/types/news";
+
+const fixedTags = [
+  "ai",
+  "kh&cn",
+  "telecom",
+  "robotics",
+  "software",
+  "security",
+  "research",
+];
+
+const tagRelations: Record<string, string[]> = {
+  ai: ["artificial intelligence", "machine learning", "deep learning", "neural network", "gpt", "llm", "generative ai"],
+  "kh&cn": ["khoa học", "công nghệ", "science", "technology"],
+  telecom: ["telecommunications", "5g", "6g", "network", "wireless", "communication"],
+  robotics: ["robot", "automation", "autonomous", "self-driving", "fsd", "avs", "drone", "autonomous vehicles"],
+  software: ["app", "application", "program", "code", "development", "erp", "saas"],
+  security: ["cybersecurity", "cyber security", "encryption", "privacy", "hacking", "vulnerability"],
+  research: ["nghiên cứu", "study", "innovation", "development", "r&d"],
+};
+
 export function useArticlesByTag(tagName: string, limit = 6) {
   const [articles, setArticles] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState(true);
@@ -15,7 +36,6 @@ export function useArticlesByTag(tagName: string, limit = 6) {
   const dispatch = useDispatch<AppDispatch>();
   const listTags = useSelector((state: RootState) => state.tag.listAllTag);
   
-  // Lấy data theo tagId cụ thể
   const postData = useSelector((state: RootState) => 
     currentTagId ? state.post.postsByTag[currentTagId]?.data : undefined
   );
@@ -36,6 +56,18 @@ export function useArticlesByTag(tagName: string, limit = 6) {
     externalLinks: post.references,
   });
 
+  const isTagRelatedToFixedTag = (tagNameStr: string, fixedTag: string): boolean => {
+    const tagLower = tagNameStr.toLowerCase();
+    const fixedTagLower = fixedTag.toLowerCase();
+    
+    if (tagLower.includes(fixedTagLower)) {
+      return true;
+    }
+    
+    const relatedKeywords = tagRelations[fixedTag] || [];
+    return relatedKeywords.some(keyword => tagLower.includes(keyword.toLowerCase()));
+  };
+
   useEffect(() => {
     dispatch(getAllTags());
   }, [dispatch]);
@@ -47,9 +79,62 @@ export function useArticlesByTag(tagName: string, limit = 6) {
       return;
     }
 
-    const targetTag = listTags.find(
-      (tag: Tag) => tag.name.toLowerCase() === tagName.toLowerCase()
-    );
+    const categoryLower = tagName.toLowerCase();
+    let targetTag = listTags.find((tag: Tag) => {
+      const tagNameLower = tag.name.toLowerCase();
+      if (tagNameLower === categoryLower) {
+        return true;
+      }
+      return false;
+    });
+
+    if (!targetTag && fixedTags.includes(categoryLower)) {
+      targetTag = listTags.find((tag: Tag) => {
+        const tagNameLower = tag.name.toLowerCase();
+        if (tagNameLower === categoryLower) {
+          return true;
+        }
+        return false;
+      });
+    }
+    
+    if (!targetTag) {
+      targetTag = listTags.find((tag: Tag) => {
+        const tagNameLower = tag.name.toLowerCase();
+        
+        if (tagNameLower.includes(categoryLower)) {
+          return true;
+        }
+        
+        if (isTagRelatedToFixedTag(tag.name, categoryLower)) {
+          return true;
+        }
+        
+        return false;
+      });
+    }
+    
+    if (!targetTag) {
+      const matchingFixedTag = fixedTags.find(fixedTag => 
+        categoryLower.includes(fixedTag.toLowerCase())
+      );
+      
+      if (matchingFixedTag) {
+        targetTag = listTags.find((tag: Tag) => {
+          const tagNameLower = tag.name.toLowerCase();
+          
+          if (tagNameLower.includes(matchingFixedTag.toLowerCase())) {
+            return true;
+          }
+          
+          if (isTagRelatedToFixedTag(tag.name, matchingFixedTag)) {
+            return true;
+          }
+          
+          return false;
+        });
+      }
+    }
 
     if (!targetTag) {
       setIsValidTag(false);
@@ -63,7 +148,6 @@ export function useArticlesByTag(tagName: string, limit = 6) {
     setIsValidTag(true);
     setCurrentTagId(tagIdStr);
     
-    // Dispatch với tag_id là string
     dispatch(getPostByTagId({ tag_id: tagIdStr }));
   }, [dispatch, listTags, tagName]);
 

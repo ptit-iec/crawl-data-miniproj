@@ -43,14 +43,6 @@ const getIconComponent = (icon: string) => {
   };
   return icons[icon as keyof typeof icons] || Newspaper;
 };
-// const getFilterColors = (variant: string) => {
-//   const colors = {
-//     favorites: "focus:ring-pink-500 focus:border-pink-500",
-//     saved: "focus:ring-blue-500 focus:border-blue-500",
-//     news: "focus:ring-emerald-500 focus:border-emerald-500",
-//   };
-//   return colors[variant as keyof typeof colors] || colors.news;
-// };
 
 export default function ArticlesPageLayout({
   title,
@@ -62,21 +54,10 @@ export default function ArticlesPageLayout({
   // categoryParam,
   paginationControls
 }: ArticlesPageLayoutProps) {
-  // const router = useRouter();
 
   const IconComponent = getIconComponent(icon);
   const gradientClasses = getGradientClasses(variant);
   const accentColor = getAccentColor(variant);
-  // const filterColors = getFilterColors(variant);
-
-  // const handleCategoryChange = (value: string) => {
-  //   if (value) {
-  //     router.push(`/saved?category=${value}`);
-  //   } else {
-  //     router.push("/saved");
-  //   }
-  // };
-
   return (
     <div className={`min-h-screen bg-gradient-to-br ${gradientClasses}`}>
       <div className="container mx-auto px-4 py-8">
@@ -92,70 +73,6 @@ export default function ArticlesPageLayout({
             {description}
           </p>
         </div>
-
-        {/* Advanced Filters & Controls */}
-        {/* <section className="mb-8">
-          <div className="bg-slate-800/50 backdrop-blur-sm rounded-lg border border-slate-700 max-w-3xl mx-auto p-3">
-            <h2 className="text-lg font-semibold text-white mb-3">
-              Bộ lọc nâng cao
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">
-                  Danh mục
-                </label>
-                <select
-                  title="Filter by category"
-                  className={`w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white focus:ring-2 ${filterColors}`}
-                  value={categoryParam || ""}
-                  onChange={(e) => handleCategoryChange(e.target.value)}
-                >
-                  <option value="">Tất cả danh mục</option>
-                  <option value="research">
-                    Thông tin hoạt động nghiên cứu khoa học
-                  </option>
-                  <option value="khcn">Hoạt động bộ KH&CN</option>
-                  <option value="ai">Trí tuệ nhân tạo</option>
-                  <option value="telecom">Viễn thông và mạng</option>
-                  <option value="robotics">Robotic và tự động hóa</option>
-                  <option value="software">Phát triển phần mềm</option>
-                  <option value="security">An toàn thông tin</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">
-                  Sắp xếp theo
-                </label>
-                <select
-                  title="Sort articles"
-                  className={`w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white focus:ring-2 ${filterColors}`}
-                >
-                  <option>Mới nhất</option>
-                  <option>Phổ biến nhất</option>
-                  <option>Xem nhiều nhất</option>
-                  <option>Xu hướng</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">
-                  Khoảng thời gian
-                </label>
-                <select
-                  title="Select time range"
-                  className={`w-full px-3 py-2 bg-slate-700 border border-slate-600 rounded-md text-white focus:ring-2 ${filterColors}`}
-                >
-                  <option>Tất cả</option>
-                  <option>Hôm nay</option>
-                  <option>Tuần này</option>
-                  <option>Tháng này</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        </section> */}
-
          <ArticleList
           articles={articles}
           layout="list"

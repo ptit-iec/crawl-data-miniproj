@@ -16,13 +16,23 @@ import { sortArticlesByTime, filterArticlesByTimeRange } from "@/lib/utils";
 
 const fixedTags = [
   "ai",
-  "khcn",
+  "kh&cn",
   "telecom",
   "robotics",
   "software",
   "security",
   "research",
 ];
+
+const tagRelations: Record<string, string[]> = {
+  ai: ["artificial intelligence", "machine learning", "deep learning", "neural network", "gpt", "llm", "generative ai"],
+  "kh&cn": ["khoa học", "công nghệ", "science", "technology"],
+  telecom: ["telecommunications", "5g", "6g", "network", "wireless", "communication"],
+  robotics: ["robot", "automation", "autonomous", "self-driving", "fsd", "avs", "drone", "autonomous vehicles"],
+  software: ["app", "application", "program", "code", "development", "erp", "saas"],
+  security: ["cybersecurity", "cyber security", "encryption", "privacy", "hacking", "vulnerability"],
+  research: ["nghiên cứu", "study", "innovation", "development", "r&d"],
+};
 
 export default function NewsPageClient() {
   const dispatch = useDispatch<AppDispatch>();
@@ -46,7 +56,7 @@ export default function NewsPageClient() {
 
   const [currentTagId, setCurrentTagId] = useState<string | null>(null);
 
-  // Lấy pagination info dựa trên category
+
   const paginationInfo = categoryParam && currentTagId
     ? postsByTag[currentTagId]?.pagination
     : allPostData.pagination;
@@ -68,23 +78,32 @@ export default function NewsPageClient() {
     publishedAt: post.time || "",
   });
 
+  // Helper function: Kiểm tra tag có liên quan đến fixedTag không
+  const isTagRelatedToFixedTag = (tagName: string, fixedTag: string): boolean => {
+    const tagLower = tagName.toLowerCase();
+    const fixedTagLower = fixedTag.toLowerCase();
+    
+    // Kiểm tra trùng khớp trực tiếp
+    if (tagLower.includes(fixedTagLower)) {
+      return true;
+    }
+    
+    // Kiểm tra các từ khóa liên quan
+    const relatedKeywords = tagRelations[fixedTag] || [];
+    return relatedKeywords.some(keyword => tagLower.includes(keyword.toLowerCase()));
+  };
+
   const hasValidTopic = (topics: string[] | undefined): boolean => {
     if (!topics || topics.length === 0) return false;
     return topics.some((topic) =>
       fixedTags.some((fixedTag) =>
-        topic.toLowerCase().includes(fixedTag.toLowerCase())
+        isTagRelatedToFixedTag(topic, fixedTag)
       )
     );
   };
 
-  // Fetch tags on mount
   useEffect(() => {
     dispatch(getAllTags());
-  }, [dispatch]);
-
-  // Reset NGAY LẬP TỨC khi URL params thay đổi (chạy đầu tiên)
-  useEffect(() => {
-    // Reset tất cả state về trạng thái ban đầu
     dispatch(resetAllPosts());
     dispatch(resetPostsByTag());
     setArticles([]);
@@ -92,33 +111,79 @@ export default function NewsPageClient() {
     setCurrentTagId(null);
     setLoading(true);
   }, [dispatch,categoryParam]);
-
-  // Fetch data when category or page changes
+  
   useEffect(() => {
-    // Reset articles và set loading trước khi fetch
     setArticles([]);
     setLoading(true);
 
-    // If no category, fetch all posts
     if (!categoryParam) {
-
       setCurrentTagId(null);
       dispatch(getAllPosts({ page: currentPage, pageSize }));
       return;
     }
 
-    // Wait for tags to load
     if (!listTags || listTags.length === 0) {
       return;
     }
 
-    // Find target tag
-    const targetTag = listTags.find(
-      (tag: Tag) => tag.name.toLowerCase() === categoryParam.toLowerCase()
-    );
+    const categoryLower = categoryParam.toLowerCase();
+    let targetTag = listTags.find((tag: Tag) => {
+      const tagNameLower = tag.name.toLowerCase();
+      if (tagNameLower === categoryLower) {
+        return true;
+      }
+      return false;
+    });
+
+    if (!targetTag && fixedTags.includes(categoryLower)) {
+      targetTag = listTags.find((tag: Tag) => {
+        const tagNameLower = tag.name.toLowerCase();
+        if (tagNameLower === categoryLower) {
+          return true;
+        }
+        return false;
+      });
+    }
+    
+    if (!targetTag) {
+      targetTag = listTags.find((tag: Tag) => {
+        const tagNameLower = tag.name.toLowerCase();
+        
+        if (tagNameLower.includes(categoryLower)) {
+          return true;
+        }
+        
+        if (isTagRelatedToFixedTag(tag.name, categoryLower)) {
+          return true;
+        }
+        
+        return false;
+      });
+    }
+    
+    if (!targetTag) {
+      const matchingFixedTag = fixedTags.find(fixedTag => 
+        categoryLower.includes(fixedTag.toLowerCase())
+      );
+      
+      if (matchingFixedTag) {
+        targetTag = listTags.find((tag: Tag) => {
+          const tagNameLower = tag.name.toLowerCase();
+          
+          if (tagNameLower.includes(matchingFixedTag.toLowerCase())) {
+            return true;
+          }
+          
+          if (isTagRelatedToFixedTag(tag.name, matchingFixedTag)) {
+            return true;
+          }
+          
+          return false;
+        });
+      }
+    }
 
     if (!targetTag) {
-
       setCurrentTagId(null);
       setLoading(false);
       return;
@@ -136,7 +201,6 @@ export default function NewsPageClient() {
     );
   }, [dispatch, listTags, categoryParam, currentPage, pageSize]);
 
-  // Update articles when data changes
   useEffect(() => {
     const dataSource = categoryParam && currentTagId
       ? postsByTag[currentTagId]?.data
@@ -146,10 +210,8 @@ export default function NewsPageClient() {
       ? postsByTag[currentTagId]?.isLoading
       : allPostData.isLoading;
 
-    // Update loading state
     setLoading(isLoadingData ?? false);
 
-    // Nếu đang loading và chưa có data, giữ articles rỗng
     if (isLoadingData) {
       if (!dataSource?.length) {
         setArticles([]);
@@ -157,27 +219,24 @@ export default function NewsPageClient() {
       return;
     }
 
-    // Nếu không có data và không loading, clear articles
     if (!dataSource || !dataSource.length) {
       setArticles([]);
       return;
     }
 
-    // Map data sang articles
-    const filteredPosts = dataSource.filter((post) => hasValidTopic(post.topic));
+    const filteredPosts = categoryParam 
+      ? dataSource.filter((post) => hasValidTopic(post.topic))
+      : dataSource;
     let mappedArticles = filteredPosts.map(mapPostToArticle);
 
-    // Apply time range filter
     mappedArticles = filterArticlesByTimeRange(mappedArticles, timeRange);
 
-    // Apply sorting
     if (sortBy === "newest" || sortBy === "oldest") {
       mappedArticles = sortArticlesByTime(
         mappedArticles,
         sortBy === "newest" ? "newest" : "oldest"
       );
     }
-    // Các option khác (popular, trending) có thể implement sau
 
     setArticles(mappedArticles);
   }, [postsByTag, allPostData, categoryParam, currentTagId, sortBy, timeRange]);
@@ -248,11 +307,9 @@ export default function NewsPageClient() {
         onSortChange={setSortBy}
         timeRange={timeRange}
         onTimeRangeChange={setTimeRange}
-        // loading={loading}
         paginationControls={
           paginationInfo && total > 0 && articles.length > 0 ? (
             <div className="flex flex-col items-center gap-4 mt-8 mb-4">
-              {/* Pagination info */}
               <div className="flex items-center gap-4 text-sm text-slate-400">
                 <span>
                   Showing {startItem}-{endItem} of {total} results
@@ -270,9 +327,7 @@ export default function NewsPageClient() {
                 </select>
               </div>
 
-              {/* Pagination buttons */}
               <div className="flex items-center gap-2">
-                {/* Previous button */}
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage <= 1 || loading}
@@ -282,7 +337,6 @@ export default function NewsPageClient() {
                   Previous
                 </button>
 
-                {/* Page numbers */}
                 <div className="flex items-center gap-1">
                   {getPageNumbers().map((page, index) => (
                     page === "..." ? (
@@ -309,7 +363,6 @@ export default function NewsPageClient() {
                   ))}
                 </div>
 
-                {/* Next button */}
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage >= totalPages || loading}
@@ -320,7 +373,6 @@ export default function NewsPageClient() {
                 </button>
               </div>
 
-              {/* Quick jump */}
               <div className="flex items-center gap-2 text-sm text-slate-400">
                 <span>Go to page:</span>
                 <input
