@@ -199,7 +199,6 @@ export default function ArticleCard({
                         rel="noopener noreferrer"
                         className="text-green-400 hover:underline"
                       >
-                        {new URL(link).hostname}
                       </Link>
                     </li>
                   ))}
