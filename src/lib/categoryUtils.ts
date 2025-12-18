@@ -4,8 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getAllTags } from "@/api/tag";
 import { AppDispatch, RootState } from "@/store/configureStore";
 import { getPostByTagId } from "@/api/posts";
-import { Post } from "@/store/modules/post";
-import { NewsArticle } from "@/types/news";
+import { Post, Article } from "@/store/modules/post";
 
 const fixedTags = [
   "ai",
@@ -28,7 +27,7 @@ const tagRelations: Record<string, string[]> = {
 };
 
 export function useArticlesByTag(tagName: string, limit = 6) {
-  const [articles, setArticles] = useState<NewsArticle[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [isValidTag, setIsValidTag] = useState(false);
   const [currentTagId, setCurrentTagId] = useState<string | null>(null);
@@ -44,17 +43,41 @@ export function useArticlesByTag(tagName: string, limit = 6) {
     currentTagId ? state.post.postsByTag[currentTagId]?.isLoading ?? true : true
   );
 
-  const mapPostToArticle = (post: Post): NewsArticle => ({
-    id: post.id,
-    name: post.title,
-    field: post.domain,
-    des: post.summary || post.highlight || "",
-    tags: post.topic,
-    supplier: post.newspaper_publisher,
-    website: post.url,
-    summarize: post.summary,
-    externalLinks: post.references,
-  });
+  const placeholderImages = [
+    "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=600&fit=crop",
+  ];
+
+  const mapPostToArticle = (post: Post): Article => {
+    let imageUrl = placeholderImages[Math.floor(Math.random() * placeholderImages.length)];
+    if (post.images && post.images.length > 0) {
+      const randomIndex = Math.floor(Math.random() * post.images.length);
+      imageUrl = post.images[randomIndex] || placeholderImages[Math.floor(Math.random() * placeholderImages.length)];
+    }
+
+    return {
+      id: post.id,
+      name: post.title,
+      field: post.domain,
+      des: post.summary || post.highlight || "",
+      tags: post.topic,
+      supplier: post.newspaper_publisher,
+      website: post.url,
+      contact_info: "",
+      address: "",
+      summarize: post.summary,
+      internalLinks: [],
+      externalLinks: post.references,
+      imageUrl: imageUrl,
+      publishedAt: post.time || "",
+    };
+  };
 
   const isTagRelatedToFixedTag = (tagNameStr: string, fixedTag: string): boolean => {
     const tagLower = tagNameStr.toLowerCase();

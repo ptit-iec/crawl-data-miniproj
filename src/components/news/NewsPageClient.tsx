@@ -56,27 +56,45 @@ export default function NewsPageClient() {
 
   const [currentTagId, setCurrentTagId] = useState<string | null>(null);
 
+  const placeholderImages = [
+    "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=600&fit=crop",
+  ];
 
   const paginationInfo = categoryParam && currentTagId
     ? postsByTag[currentTagId]?.pagination
     : allPostData.pagination;
 
-  const mapPostToArticle = (post: Post): Article => ({
-    id: post.id,
-    name: post.title,
-    field: post.domain,
-    des: post.summary || post.highlight || "",
-    tags: post.topic,
-    supplier: post.newspaper_publisher,
-    website: post.url,
-    contact_info: "",
-    address: "",
-    summarize: post.summary,
-    internalLinks: [],
-    externalLinks: post.references,
-    imageUrl: post.images?.[0] || "",
-    publishedAt: post.time || "",
-  });
+  const mapPostToArticle = (post: Post): Article => {
+    let imageUrl = placeholderImages[Math.floor(Math.random() * placeholderImages.length)];
+    if (post.images && post.images.length > 0) {
+      const randomIndex = Math.floor(Math.random() * post.images.length);
+      imageUrl = post.images[randomIndex] || placeholderImages[Math.floor(Math.random() * placeholderImages.length)];
+    }
+
+    return {
+      id: post.id,
+      name: post.title,
+      field: post.domain,
+      des: post.summary || post.highlight || "",
+      tags: post.topic,
+      supplier: post.newspaper_publisher,
+      website: post.url,
+      contact_info: "",
+      address: "",
+      summarize: post.summary,
+      internalLinks: [],
+      externalLinks: post.references,
+      imageUrl: imageUrl,
+      publishedAt: post.time || "",
+    };
+  };
 
   // Helper function: Kiểm tra tag có liên quan đến fixedTag không
   const isTagRelatedToFixedTag = (tagName: string, fixedTag: string): boolean => {

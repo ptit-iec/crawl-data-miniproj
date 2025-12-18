@@ -33,10 +33,18 @@ interface ArticleCardProps {
 // Utility function to convert protocol-relative URLs to absolute URLs
 const normalizeImageUrl = (url: string | undefined): string => {
   if (!url) return '';
+  
+  // Nếu là ảnh từ backend (relative path), thêm base URL
+  if (url.startsWith('/uploads/') || url.startsWith('/Uploads/')) {
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
+    return `${baseUrl}${url}`;
+  }
+  
   // Convert protocol-relative URL to https
   if (url.startsWith('//')) {
     return `https:${url}`;
   }
+  
   return url;
 };
 
@@ -247,10 +255,8 @@ export default function ArticleCard({
         <div className="relative overflow-hidden">
           {!imageError && article.name && (
             <Image
-              src={
-                article.imageUrl ||
-                `https://picsum.photos/400/250?random=${(article.name || '').length}`
-              }
+              src={article.imageUrl || "https://picsum.photos/400/250?random=noimage"}
+
               alt={article.name || 'Article'}
               width={400}
               height={250}
