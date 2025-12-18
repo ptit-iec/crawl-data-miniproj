@@ -9,69 +9,47 @@ import { getAllPosts } from "@/api/posts";
 import { AppDispatch, RootState } from "@/store/configureStore";
 import { Article, Post } from "@/store/modules/post";
 
-const fixedTags = [
-  "ai",
-  "kh&cn",
-  "telecom",
-  "robotics",
-  "software",
-  "security",
-  "research",
-];
-
-const tagRelations: Record<string, string[]> = {
-  ai: ["artificial intelligence", "machine learning", "deep learning", "neural network", "gpt", "llm", "generative ai"],
-  "kh&cn": ["khoa học", "công nghệ", "science", "technology"],
-  telecom: ["telecommunications", "5g", "6g", "network", "wireless", "communication"],
-  robotics: ["robot", "automation", "autonomous", "self-driving", "fsd", "avs", "drone", "autonomous vehicles"],
-  software: ["app", "application", "program", "code", "development", "erp", "saas"],
-  security: ["cybersecurity", "cyber security", "encryption", "privacy", "hacking", "vulnerability"],
-  research: ["nghiên cứu", "study", "innovation", "development", "r&d"],
-};
-
 export default function NewsPreview() {
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
-  const [filteredArticles, setFilteredArticles] = useState<Article[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
 
-  const listAllPost = useSelector((state: RootState) => state.post.allPosts.data);
+  const allPostData = useSelector((state: RootState) => state.post.allPosts);
 
-  const mapPostToArticle = (post: Post): Article => ({
-    id: post.id,
-    name: post.title,
-    field: post.domain,
-    des: post.summary || post.highlight || "",
-    tags: post.topic,
-    supplier: post.newspaper_publisher,
-    website: post.url,
-    contact_info: "",
-    address: "",
-    summarize: post.summary,
-    internalLinks: [],
-    externalLinks: post.references,
-    imageUrl: post.images?.[0] || "",
-    publishedAt: post.time || "",
-  });
+  const placeholderImages = [
+    "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1518770660439-4636190af475?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&h=600&fit=crop",
+    "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&h=600&fit=crop",
+  ];
 
-  const isTagRelatedToFixedTag = (tagName: string, fixedTag: string): boolean => {
-    const tagLower = tagName.toLowerCase();
-    const fixedTagLower = fixedTag.toLowerCase();
-    
-    if (tagLower.includes(fixedTagLower)) {
-      return true;
+  const mapPostToArticle = (post: Post): Article => {
+    let imageUrl = placeholderImages[Math.floor(Math.random() * placeholderImages.length)];
+    if (post.images && post.images.length > 0) {
+      const randomIndex = Math.floor(Math.random() * post.images.length);
+      imageUrl = post.images[randomIndex] || placeholderImages[Math.floor(Math.random() * placeholderImages.length)];
     }
-    
-    const relatedKeywords = tagRelations[fixedTag] || [];
-    return relatedKeywords.some(keyword => tagLower.includes(keyword.toLowerCase()));
-  };
 
-  const hasValidTopic = (topics: string[] | undefined): boolean => {
-    if (!topics || topics.length === 0) return false;
-    return topics.some((topic) =>
-      fixedTags.some((fixedTag) =>
-        isTagRelatedToFixedTag(topic, fixedTag)
-      )
-    );
+    return {
+      id: post.id,
+      name: post.title,
+      field: post.domain,
+      des: post.summary || post.highlight || "",
+      tags: post.topic,
+      supplier: post.newspaper_publisher,
+      website: post.url,
+      contact_info: "",
+      address: "",
+      summarize: post.summary,
+      internalLinks: [],
+      externalLinks: post.references,
+      imageUrl: imageUrl,
+      publishedAt: post.time || "",
+    };
   };
 
   useEffect(() => {
@@ -79,13 +57,14 @@ export default function NewsPreview() {
   }, [dispatch]);
 
   useEffect(() => {
-    // Lọc các bài viết có topic thuộc fixedTags
-    const filtered = listAllPost
-      .filter((post) => hasValidTopic(post.topic))
-      .map(mapPostToArticle);
-    
-    setFilteredArticles(filtered);
-  }, [listAllPost]);
+    if (!allPostData.data || allPostData.data.length === 0) {
+      setArticles([]);
+      return;
+    }
+
+    const mappedArticles = allPostData.data.map(mapPostToArticle);
+    setArticles(mappedArticles);
+  }, [allPostData.data]);
 
   return (
     <section className="py-8">
@@ -102,7 +81,7 @@ export default function NewsPreview() {
 
       {/* Articles Grid */}
       <ArticleList
-        articles={filteredArticles}
+        articles={articles}
         layout="grid"
         variant="news"
         limit={6}
