@@ -66,14 +66,14 @@ export default function RegisterForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-slate-300 mb-1">
-            Tên đầy đủ
+            Username
           </label>
           <Input
             id="name"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="John Doe"
+            placeholder="John"
             className="w-full bg-slate-700 border-slate-600 text-white placeholder:text-slate-400"
             required
           />
