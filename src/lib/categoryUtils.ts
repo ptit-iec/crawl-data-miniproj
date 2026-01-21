@@ -23,7 +23,7 @@ const tagRelations: Record<string, string[]> = {
   robotics: ["robot", "automation", "autonomous", "self-driving", "fsd", "avs", "drone", "autonomous vehicles"],
   software: ["app", "application", "program", "code", "development", "erp", "saas"],
   security: ["cybersecurity", "cyber security", "encryption", "privacy", "hacking", "vulnerability"],
-  research: ["nghiên cứu", "study", "innovation", "development", "r&d"],
+  research: ["Đề tài","đề tài","ĐỀ TÀI","nghiên cứu", "study", "innovation", "development", "r&d"],
 };
 
 export function useArticlesByTag(tagName: string, limit = 6) {
