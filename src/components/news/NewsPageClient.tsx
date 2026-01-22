@@ -111,7 +111,15 @@ export default function NewsPageClient() {
     return relatedKeywords.some(keyword => tagLower.includes(keyword.toLowerCase()));
   };
 
-  const hasValidTopic = (topics: string[] | undefined): boolean => {
+  const hasValidTopic = (topics: string[] | undefined, post?: Post): boolean => {
+    // Đặc biệt cho research: tự động nhận domain từ mst.gov.vn và nafosted.gov.vn
+    if (categoryParam?.toLowerCase() === "research" && post) {
+      const domain = post.domain?.toLowerCase() || "";
+      if (domain.includes("mst.gov.vn") || domain.includes("nafosted.gov.vn")) {
+        return true;
+      }
+    }
+    
     if (!topics || topics.length === 0) return false;
     return topics.some((topic) =>
       fixedTags.some((fixedTag) =>
@@ -217,10 +225,15 @@ export default function NewsPageClient() {
         pageSize,
       })
     );
+    
+    // Với research, gọi thêm getAllPosts để lấy bài từ mst.gov.vn và nafosted.gov.vn
+    if (categoryLower === "research") {
+      dispatch(getAllPosts({ page: 1, pageSize: 100 }));
+    }
   }, [dispatch, listTags, categoryParam, currentPage, pageSize]);
 
   useEffect(() => {
-    const dataSource = categoryParam && currentTagId
+    let dataSource = categoryParam && currentTagId
       ? postsByTag[currentTagId]?.data
       : allPostData.data;
 
@@ -242,8 +255,23 @@ export default function NewsPageClient() {
       return;
     }
 
+    // Với research: merge thêm các bài từ allPostData có domain mst.gov.vn hoặc nafosted.gov.vn
+    if (categoryParam?.toLowerCase() === "research" && allPostData.data) {
+      const researchDomainPosts = allPostData.data.filter(post => {
+        const domain = post.domain?.toLowerCase() || "";
+        return domain.includes("mst.gov.vn") || domain.includes("nafosted.gov.vn");
+      });
+      
+      // Merge và loại bỏ duplicate dựa trên id
+      const mergedData = [...(dataSource || []), ...researchDomainPosts];
+      const uniquePosts = Array.from(
+        new Map(mergedData.map(post => [post.id, post])).values()
+      );
+      dataSource = uniquePosts;
+    }
+
     const filteredPosts = categoryParam 
-      ? dataSource.filter((post) => hasValidTopic(post.topic))
+      ? dataSource.filter((post) => hasValidTopic(post.topic, post))
       : dataSource;
     let mappedArticles = filteredPosts.map(mapPostToArticle);
 
