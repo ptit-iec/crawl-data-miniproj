@@ -256,7 +256,27 @@ export default function NewsPageClient() {
       );
     }
 
-    setArticles(mappedArticles);
+    // Giải pháp tạm thời: Nếu trang 1 và số bài < pageSize, thêm tối đa 5 bài nhân bản
+    if (currentPage === 1 && mappedArticles.length > 0 && mappedArticles.length < pageSize) {
+      const articlesWithDuplicates = [...mappedArticles];
+      const maxDuplicates = 5;
+      const needed = pageSize - mappedArticles.length;
+      const duplicatesToAdd = Math.min(maxDuplicates, needed);
+      
+      for (let i = 0; i < duplicatesToAdd; i++) {
+        const randomIndex = Math.floor(Math.random() * mappedArticles.length);
+        const originalArticle = mappedArticles[randomIndex];
+        const duplicateArticle = {
+          ...originalArticle,
+          id: `${originalArticle.id}_dup_${i}`, // Chỉ thay đổi id để unique
+        };
+        articlesWithDuplicates.push(duplicateArticle);
+      }
+      
+      setArticles(articlesWithDuplicates);
+    } else {
+      setArticles(mappedArticles);
+    }
   }, [postsByTag, allPostData, categoryParam, currentTagId, sortBy, timeRange]);
 
   // Handle page change

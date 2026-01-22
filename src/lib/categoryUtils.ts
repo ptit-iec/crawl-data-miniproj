@@ -191,7 +191,29 @@ export function useArticlesByTag(tagName: string, limit = 6) {
     }
 
     const mappedArticles = postData.slice(0, limit).map(mapPostToArticle);
-    setArticles(mappedArticles);
+    
+    // Giải pháp tạm thời: Nếu số bài viết < limit, tạo nhân bản bằng cách random
+    // Tất cả bài trong mappedArticles đã được filter theo đúng tag từ postData
+    if (mappedArticles.length > 0 && mappedArticles.length < limit) {
+      const articlesWithDuplicates = [...mappedArticles];
+      const remaining = limit - mappedArticles.length;
+      
+      for (let i = 0; i < remaining; i++) {
+        const randomIndex = Math.floor(Math.random() * mappedArticles.length);
+        const originalArticle = mappedArticles[randomIndex];
+        // Nhân bản toàn bộ article bao gồm tags, field và các thuộc tính khác
+        const duplicateArticle = {
+          ...originalArticle,
+          id: `${originalArticle.id}_dup_${i}`, // Chỉ thay đổi id để unique
+          // tags, field, và các thuộc tính khác giữ nguyên từ bài gốc
+        };
+        articlesWithDuplicates.push(duplicateArticle);
+      }
+      
+      setArticles(articlesWithDuplicates);
+    } else {
+      setArticles(mappedArticles);
+    }
   }, [postData, isValidTag, currentTagId, isLoadingData, limit]);
 
   return { articles, loading };
