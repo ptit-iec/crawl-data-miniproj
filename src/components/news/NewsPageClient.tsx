@@ -31,7 +31,7 @@ const tagRelations: Record<string, string[]> = {
   robotics: ["robot", "automation", "autonomous", "self-driving", "fsd", "avs", "drone", "autonomous vehicles"],
   software: ["app", "application", "program", "code", "development", "erp", "saas"],
   security: ["cybersecurity", "cyber security", "encryption", "privacy", "hacking", "vulnerability"],
-  research: ["Đề tài","đề tài","ĐỀ TÀI","nghiên cứu", "study", "innovation", "development", "r&d"],
+  research: ["Đề tài","đề tài","ĐỀ TÀI","nghiên cứu", "study", "innovation", "development", "r&d","khoa học", "công nghệ", "science", "technology","kh&cn"],
 };
 
 export default function NewsPageClient() {
