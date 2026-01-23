@@ -192,13 +192,16 @@ export function useArticlesByTag(tagName: string, limit = 6) {
       return;
     }
 
-    const mappedArticles = postData.slice(0, limit).map(mapPostToArticle);
+    let mappedArticles = postData.slice(0, limit).map(mapPostToArticle);
+    
+    // Loại bỏ duplicate dựa trên id
+    const uniqueArticlesMap = new Map(mappedArticles.map(article => [article.id, article]));
+    mappedArticles = Array.from(uniqueArticlesMap.values());
     
     // Nếu số bài viết < limit, lấy thêm từ getAllPosts
     if (mappedArticles.length > 0 && mappedArticles.length < limit && allPosts.length > 0) {
-      const articlesWithExtras = [...mappedArticles];
-      const remaining = limit - mappedArticles.length;
       const existingIds = new Set(mappedArticles.map(a => a.id));
+      const remaining = limit - mappedArticles.length;
       
       // Lấy các bài từ allPosts chưa có trong mappedArticles
       const additionalPosts = allPosts
@@ -206,12 +209,14 @@ export function useArticlesByTag(tagName: string, limit = 6) {
         .slice(0, remaining)
         .map(mapPostToArticle);
       
-      articlesWithExtras.push(...additionalPosts);
-      setArticles(articlesWithExtras);
+      // Merge và loại bỏ duplicate một lần nữa để chắc chắn
+      const allArticles = [...mappedArticles, ...additionalPosts];
+      const finalUniqueMap = new Map(allArticles.map(article => [article.id, article]));
+      setArticles(Array.from(finalUniqueMap.values()));
     } else {
       setArticles(mappedArticles);
     }
-  }, [postData, isValidTag, currentTagId, isLoadingData, limit]);
+  }, [postData, isValidTag, currentTagId, isLoadingData, limit, allPosts]);
 
   return { articles, loading };
 }
