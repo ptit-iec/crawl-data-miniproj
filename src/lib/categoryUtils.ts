@@ -94,7 +94,8 @@ export function useArticlesByTag(tagName: string, limit = 6) {
 
   useEffect(() => {
     dispatch(getAllTags());
-    dispatch(getAllPosts({ page: 1, pageSize: 50 }));
+    dispatch(getAllPosts({ page: 1, pageSize: 100 }));
+    dispatch(getAllPosts({ page: 2, pageSize: 100 }));
   }, [dispatch]);
 
   useEffect(() => {
@@ -192,16 +193,18 @@ export function useArticlesByTag(tagName: string, limit = 6) {
       return;
     }
 
-    let mappedArticles = postData.slice(0, limit).map(mapPostToArticle);
+    // Lấy gấp đôi limit để đảm bảo có đủ bài sau khi deduplicate
+    let mappedArticles = postData.slice(0, limit * 2).map(mapPostToArticle);
     
     // Loại bỏ duplicate dựa trên id
-    const uniqueArticlesMap = new Map(mappedArticles.map(article => [article.id, article]));
+    let uniqueArticlesMap = new Map(mappedArticles.map(article => [article.id, article]));
     mappedArticles = Array.from(uniqueArticlesMap.values());
     
-    // Nếu số bài viết < limit, lấy thêm từ getAllPosts
-    if (mappedArticles.length > 0 && mappedArticles.length < limit && allPosts.length > 0) {
+    // Nếu số bài viết < limit * 1.5, lấy thêm từ getAllPosts để đảm bảo
+    const targetCount = Math.ceil(limit * 1.5);
+    if (mappedArticles.length < targetCount && allPosts.length > 0) {
       const existingIds = new Set(mappedArticles.map(a => a.id));
-      const remaining = limit - mappedArticles.length;
+      const remaining = targetCount - mappedArticles.length;
       
       // Lấy các bài từ allPosts chưa có trong mappedArticles
       const additionalPosts = allPosts
@@ -209,13 +212,14 @@ export function useArticlesByTag(tagName: string, limit = 6) {
         .slice(0, remaining)
         .map(mapPostToArticle);
       
-      // Merge và loại bỏ duplicate một lần nữa để chắc chắn
+      // Merge và loại bỏ duplicate một lần nữa
       const allArticles = [...mappedArticles, ...additionalPosts];
-      const finalUniqueMap = new Map(allArticles.map(article => [article.id, article]));
-      setArticles(Array.from(finalUniqueMap.values()));
-    } else {
-      setArticles(mappedArticles);
+      uniqueArticlesMap = new Map(allArticles.map(article => [article.id, article]));
+      mappedArticles = Array.from(uniqueArticlesMap.values());
     }
+    
+    // Lấy đúng số lượng limit cuối cùng
+    setArticles(mappedArticles.slice(0, limit));
   }, [postData, isValidTag, currentTagId, isLoadingData, limit, allPosts]);
 
   return { articles, loading };

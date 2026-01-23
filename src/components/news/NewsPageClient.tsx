@@ -227,9 +227,22 @@ export default function NewsPageClient() {
       })
     );
     
-    // Với research, gọi thêm getAllPosts để lấy bài từ mst.gov.vn và nafosted.gov.vn
+    // Luôn gọi getAllPosts với trang tương ứng để có dữ liệu backup
+    // Tính toán page cho getAllPosts dựa trên currentPage
+    const backupPage = Math.ceil((currentPage * pageSize) / 50); // Giả sử getAllPosts fetch 50 items/page
+    dispatch(getAllPosts({ page: backupPage, pageSize: 50 }));
+    
+    // Nếu cần thêm dữ liệu, gọi thêm page tiếp theo
+    if (currentPage > 1) {
+      dispatch(getAllPosts({ page: backupPage + 1, pageSize: 50 }));
+    }
+    
+    // Với research, gọi thêm nhiều hơn để đảm bảo có đủ bài từ mst.gov.vn và nafosted.gov.vn
     if (categoryLower === "research") {
       dispatch(getAllPosts({ page: 1, pageSize: 100 }));
+      if (currentPage > 1) {
+        dispatch(getAllPosts({ page: 2, pageSize: 100 }));
+      }
     }
   }, [dispatch, listTags, categoryParam, currentPage, pageSize]);
 
@@ -277,9 +290,29 @@ export default function NewsPageClient() {
     let mappedArticles = filteredPosts.map(mapPostToArticle);
 
     // Loại bỏ duplicate articles dựa trên id
-    const uniqueArticlesMap = new Map(mappedArticles.map(article => [article.id, article]));
+    let uniqueArticlesMap = new Map(mappedArticles.map(article => [article.id, article]));
     mappedArticles = Array.from(uniqueArticlesMap.values());
 
+    // Nếu số bài < pageSize * 2, lấy thêm từ allPostData TRƯỚC KHI filter theo timeRange
+    // Nhân 2 để đảm bảo sau khi filter timeRange vẫn còn đủ bài
+    const targetCount = pageSize * 2;
+    if (mappedArticles.length < targetCount && allPostData.data?.length > 0) {
+      const existingIds = new Set(mappedArticles.map(a => a.id));
+      const remaining = targetCount - mappedArticles.length;
+      
+      // Lấy các bài từ allPostData chưa có trong mappedArticles
+      const additionalPosts = allPostData.data
+        .filter(post => !existingIds.has(post.id))
+        .slice(0, remaining)
+        .map(mapPostToArticle);
+      
+      // Merge và loại bỏ duplicate
+      const allArticles = [...mappedArticles, ...additionalPosts];
+      uniqueArticlesMap = new Map(allArticles.map(article => [article.id, article]));
+      mappedArticles = Array.from(uniqueArticlesMap.values());
+    }
+
+    // Sau khi đã có đủ bài, mới filter theo timeRange
     mappedArticles = filterArticlesByTimeRange(mappedArticles, timeRange);
 
     if (sortBy === "newest" || sortBy === "oldest") {
@@ -289,25 +322,7 @@ export default function NewsPageClient() {
       );
     }
 
-    // Nếu số bài < pageSize, lấy thêm từ allPostData (không filter theo category)
-    if (mappedArticles.length < pageSize && allPostData.data?.length > 0) {
-      const existingIds = new Set(mappedArticles.map(a => a.id));
-      const remaining = pageSize - mappedArticles.length;
-      
-      // Lấy các bài từ allPostData chưa có trong mappedArticles
-      // Không filter theo category để đảm bảo luôn có đủ bài
-      const additionalPosts = allPostData.data
-        .filter(post => !existingIds.has(post.id))
-        .slice(0, remaining)
-        .map(mapPostToArticle);
-      
-      // Merge và loại bỏ duplicate một lần nữa để chắc chắn
-      const allArticles = [...mappedArticles, ...additionalPosts];
-      const finalUniqueMap = new Map(allArticles.map(article => [article.id, article]));
-      setArticles(Array.from(finalUniqueMap.values()));
-    } else {
-      setArticles(mappedArticles);
-    }
+    setArticles(mappedArticles);
   }, [postsByTag, allPostData, categoryParam, currentTagId, sortBy, timeRange, pageSize]);
 
   // Handle page change
