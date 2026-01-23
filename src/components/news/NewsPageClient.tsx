@@ -132,6 +132,7 @@ export default function NewsPageClient() {
     dispatch(getAllTags());
     dispatch(resetAllPosts());
     dispatch(resetPostsByTag());
+    dispatch(getAllPosts({ page: 1, pageSize: 100 })); // Lấy sẵn dữ liệu dự phòng
     setArticles([]);
     setCurrentPage(1);
     setCurrentTagId(null);
@@ -284,24 +285,21 @@ export default function NewsPageClient() {
       );
     }
 
-    // Giải pháp tạm thời: Nếu trang 1 và số bài < pageSize, thêm tối đa 5 bài nhân bản
-    if (currentPage === 1 && mappedArticles.length > 0 && mappedArticles.length < pageSize) {
-      const articlesWithDuplicates = [...mappedArticles];
-      const maxDuplicates = 5;
-      const needed = pageSize - mappedArticles.length;
-      const duplicatesToAdd = Math.min(maxDuplicates, needed);
+    // Nếu số bài < pageSize, lấy thêm từ allPostData (không filter theo category)
+    if (mappedArticles.length < pageSize && allPostData.data?.length > 0) {
+      const articlesWithExtras = [...mappedArticles];
+      const remaining = pageSize - mappedArticles.length;
+      const existingIds = new Set(mappedArticles.map(a => a.id));
       
-      for (let i = 0; i < duplicatesToAdd; i++) {
-        const randomIndex = Math.floor(Math.random() * mappedArticles.length);
-        const originalArticle = mappedArticles[randomIndex];
-        const duplicateArticle = {
-          ...originalArticle,
-          id: `${originalArticle.id}_dup_${i}`, // Chỉ thay đổi id để unique
-        };
-        articlesWithDuplicates.push(duplicateArticle);
-      }
+      // Lấy các bài từ allPostData chưa có trong mappedArticles
+      // Không filter theo category để đảm bảo luôn có đủ bài
+      const additionalPosts = allPostData.data
+        .filter(post => !existingIds.has(post.id))
+        .slice(0, remaining)
+        .map(mapPostToArticle);
       
-      setArticles(articlesWithDuplicates);
+      articlesWithExtras.push(...additionalPosts);
+      setArticles(articlesWithExtras);
     } else {
       setArticles(mappedArticles);
     }

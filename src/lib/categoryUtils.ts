@@ -3,7 +3,7 @@ import { Tag } from "@/store/modules/Tag";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllTags } from "@/api/tag";
 import { AppDispatch, RootState } from "@/store/configureStore";
-import { getPostByTagId } from "@/api/posts";
+import { getPostByTagId, getAllPosts } from "@/api/posts";
 import { Post, Article } from "@/store/modules/post";
 
 const fixedTags = [
@@ -34,6 +34,7 @@ export function useArticlesByTag(tagName: string, limit = 6) {
 
   const dispatch = useDispatch<AppDispatch>();
   const listTags = useSelector((state: RootState) => state.tag.listAllTag);
+  const allPosts = useSelector((state: RootState) => state.post.allPosts.data);
   
   const postData = useSelector((state: RootState) => 
     currentTagId ? state.post.postsByTag[currentTagId]?.data : undefined
@@ -93,6 +94,7 @@ export function useArticlesByTag(tagName: string, limit = 6) {
 
   useEffect(() => {
     dispatch(getAllTags());
+    dispatch(getAllPosts({ page: 1, pageSize: 50 }));
   }, [dispatch]);
 
   useEffect(() => {
@@ -192,25 +194,20 @@ export function useArticlesByTag(tagName: string, limit = 6) {
 
     const mappedArticles = postData.slice(0, limit).map(mapPostToArticle);
     
-    // Giải pháp tạm thời: Nếu số bài viết < limit, tạo nhân bản bằng cách random
-    // Tất cả bài trong mappedArticles đã được filter theo đúng tag từ postData
-    if (mappedArticles.length > 0 && mappedArticles.length < limit) {
-      const articlesWithDuplicates = [...mappedArticles];
+    // Nếu số bài viết < limit, lấy thêm từ getAllPosts
+    if (mappedArticles.length > 0 && mappedArticles.length < limit && allPosts.length > 0) {
+      const articlesWithExtras = [...mappedArticles];
       const remaining = limit - mappedArticles.length;
+      const existingIds = new Set(mappedArticles.map(a => a.id));
       
-      for (let i = 0; i < remaining; i++) {
-        const randomIndex = Math.floor(Math.random() * mappedArticles.length);
-        const originalArticle = mappedArticles[randomIndex];
-        // Nhân bản toàn bộ article bao gồm tags, field và các thuộc tính khác
-        const duplicateArticle = {
-          ...originalArticle,
-          id: `${originalArticle.id}_dup_${i}`, // Chỉ thay đổi id để unique
-          // tags, field, và các thuộc tính khác giữ nguyên từ bài gốc
-        };
-        articlesWithDuplicates.push(duplicateArticle);
-      }
+      // Lấy các bài từ allPosts chưa có trong mappedArticles
+      const additionalPosts = allPosts
+        .filter(post => !existingIds.has(post.id))
+        .slice(0, remaining)
+        .map(mapPostToArticle);
       
-      setArticles(articlesWithDuplicates);
+      articlesWithExtras.push(...additionalPosts);
+      setArticles(articlesWithExtras);
     } else {
       setArticles(mappedArticles);
     }
