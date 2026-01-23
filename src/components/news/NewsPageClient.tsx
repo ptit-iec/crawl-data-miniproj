@@ -293,9 +293,9 @@ export default function NewsPageClient() {
     let uniqueArticlesMap = new Map(mappedArticles.map(article => [article.id, article]));
     mappedArticles = Array.from(uniqueArticlesMap.values());
 
-    // Nếu số bài < pageSize * 2, lấy thêm từ allPostData TRƯỚC KHI filter theo timeRange
-    // Nhân 2 để đảm bảo sau khi filter timeRange vẫn còn đủ bài
-    const targetCount = pageSize * 2;
+    // Nếu số bài < pageSize * 3, lấy thêm từ allPostData TRƯỚC KHI filter theo timeRange
+    // Nhân 3 để đảm bảo sau khi filter timeRange vẫn còn đủ bài
+    const targetCount = pageSize * 3;
     if (mappedArticles.length < targetCount && allPostData.data?.length > 0) {
       const existingIds = new Set(mappedArticles.map(a => a.id));
       const remaining = targetCount - mappedArticles.length;
@@ -314,6 +314,28 @@ export default function NewsPageClient() {
 
     // Sau khi đã có đủ bài, mới filter theo timeRange
     mappedArticles = filterArticlesByTimeRange(mappedArticles, timeRange);
+
+    // Nếu sau khi filter timeRange mà thiếu bài, fill thêm từ allPostData
+    if (mappedArticles.length < pageSize && allPostData.data?.length > 0) {
+      const existingIds = new Set(mappedArticles.map(a => a.id));
+      const remaining = (pageSize - mappedArticles.length) * 2;
+      
+      // Lấy các bài từ allPostData, map và filter timeRange
+      const additionalPosts = allPostData.data
+        .filter(post => !existingIds.has(post.id))
+        .slice(0, remaining)
+        .map(mapPostToArticle)
+        .filter(article => {
+          // Apply cùng timeRange filter
+          const filtered = filterArticlesByTimeRange([article], timeRange);
+          return filtered.length > 0;
+        });
+      
+      // Merge và loại bỏ duplicate
+      const allArticles = [...mappedArticles, ...additionalPosts];
+      uniqueArticlesMap = new Map(allArticles.map(article => [article.id, article]));
+      mappedArticles = Array.from(uniqueArticlesMap.values());
+    }
 
     if (sortBy === "newest" || sortBy === "oldest") {
       mappedArticles = sortArticlesByTime(

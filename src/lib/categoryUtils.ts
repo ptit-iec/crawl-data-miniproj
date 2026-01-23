@@ -200,11 +200,12 @@ export function useArticlesByTag(tagName: string, limit = 6) {
     let uniqueArticlesMap = new Map(mappedArticles.map(article => [article.id, article]));
     mappedArticles = Array.from(uniqueArticlesMap.values());
     
-    // Nếu số bài viết < limit * 1.5, lấy thêm từ getAllPosts để đảm bảo
-    const targetCount = Math.ceil(limit * 1.5);
-    if (mappedArticles.length < targetCount && allPosts.length > 0) {
+    // Fill thêm từ getAllPosts nếu thiếu bài, loop cho đến khi đủ limit hoặc hết dữ liệu
+    if (mappedArticles.length < limit && allPosts.length > 0) {
       const existingIds = new Set(mappedArticles.map(a => a.id));
-      const remaining = targetCount - mappedArticles.length;
+      
+      // Lấy nhiều bài hơn để đảm bảo sau deduplicate vẫn đủ (lấy gấp đôi số bài còn thiếu)
+      const remaining = (limit - mappedArticles.length) * 2;
       
       // Lấy các bài từ allPosts chưa có trong mappedArticles
       const additionalPosts = allPosts
